@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart, Minus, Plus, ChevronLeft, Star, Phone, QrCode } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { browniesList, cakesList } from '@/data/products';
+import { browniesList, cakesList } from '@/data/index';
 import { toast } from 'sonner';
 import ProductCard from '@/components/ProductCard';
 import { useCart } from '@/context/CartContext';

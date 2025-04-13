@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { browniesList } from '@/data/products';
+import { browniesList } from '@/data/index';
 import { Button } from '@/components/ui/button';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 

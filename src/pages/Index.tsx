@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
-import { browniesList, cakesList } from '@/data/products';
+import { browniesList, cakesList } from '@/data/index';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
