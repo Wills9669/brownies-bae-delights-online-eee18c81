@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   id: string;
@@ -12,10 +13,23 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ id, name, price, image, category }: ProductCardProps) => {
+  const { addToCart } = useCart();
+  
   // Ensure category is one of the valid values for routing purposes
   const safeCategory = ['brownies', 'cakes', 'other'].includes(category) 
     ? category 
     : 'other';
+  
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price: parseFloat(price),
+      quantity: 1,
+      image,
+      category: safeCategory,
+    });
+  };
     
   return (
     <div className="product-card bg-white rounded-lg overflow-hidden shadow">
@@ -33,7 +47,10 @@ const ProductCard = ({ id, name, price, image, category }: ProductCardProps) => 
           <h3 className="font-bold text-lg mb-1 hover:text-pink-dark transition-colors">{name}</h3>
         </Link>
         <p className="text-pink-dark font-medium mb-3">₹{price}</p>
-        <Button className="w-full flex items-center justify-center gap-2">
+        <Button 
+          onClick={handleAddToCart}
+          className="w-full flex items-center justify-center gap-2"
+        >
           <ShoppingCart size={18} />
           Add to Cart
         </Button>

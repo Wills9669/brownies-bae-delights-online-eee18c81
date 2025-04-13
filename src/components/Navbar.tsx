@@ -1,71 +1,161 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, Phone } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Menu, X, Phone } from 'lucide-react';
+import Cart from './Cart';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { pathname } = useLocation();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white shadow-md py-3 px-4 md:px-8">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="text-2xl md:text-3xl">
-            <span className="logo-text-black">Brownies</span>
-            <span className="logo-text-pink">Bae</span>
+    <header className="bg-white shadow-md sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link to="/" className="flex items-center">
+              <span className="logo-text-black text-xl">Brownies</span>
+              <span className="logo-text-pink text-2xl ml-1">Bae</span>
+            </Link>
           </div>
-        </Link>
-        
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="font-medium hover:text-pink-dark transition-colors">Home</Link>
-          <Link to="/brownies" className="font-medium hover:text-pink-dark transition-colors">Brownies</Link>
-          <Link to="/cakes" className="font-medium hover:text-pink-dark transition-colors">Cakes</Link>
-          <Link to="/about" className="font-medium hover:text-pink-dark transition-colors">About</Link>
-          <Link to="/contact" className="font-medium hover:text-pink-dark transition-colors">Contact</Link>
-        </div>
 
-        <div className="flex items-center gap-4">
-          <a href="tel:9585329788" className="hidden md:flex items-center gap-2 text-pink-dark">
-            <Phone size={18} />
-            <span className="font-medium">9585329788</span>
-          </a>
-          <Link to="/cart">
-            <Button variant="outline" size="icon" className="rounded-full">
-              <ShoppingCart className="h-5 w-5" />
-            </Button>
-          </Link>
-          <button onClick={toggleMenu} className="md:hidden">
-            {isMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </button>
-        </div>
-      </div>
-      
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white shadow-lg py-4 px-6">
-          <div className="flex flex-col space-y-3">
-            <Link to="/" className="font-medium py-2 hover:text-pink-dark" onClick={toggleMenu}>Home</Link>
-            <Link to="/brownies" className="font-medium py-2 hover:text-pink-dark" onClick={toggleMenu}>Brownies</Link>
-            <Link to="/cakes" className="font-medium py-2 hover:text-pink-dark" onClick={toggleMenu}>Cakes</Link>
-            <Link to="/about" className="font-medium py-2 hover:text-pink-dark" onClick={toggleMenu}>About</Link>
-            <Link to="/contact" className="font-medium py-2 hover:text-pink-dark" onClick={toggleMenu}>Contact</Link>
-            <a href="tel:9585329788" className="flex items-center gap-2 py-2 text-pink-dark">
-              <Phone size={18} />
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link
+              to="/"
+              className={`font-medium hover:text-pink-dark transition-colors ${
+                isActive('/') ? 'text-pink-dark' : 'text-gray-800'
+              }`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/brownies"
+              className={`font-medium hover:text-pink-dark transition-colors ${
+                isActive('/brownies') ? 'text-pink-dark' : 'text-gray-800'
+              }`}
+            >
+              Brownies
+            </Link>
+            <Link
+              to="/cakes"
+              className={`font-medium hover:text-pink-dark transition-colors ${
+                isActive('/cakes') ? 'text-pink-dark' : 'text-gray-800'
+              }`}
+            >
+              Cakes
+            </Link>
+            <Link
+              to="/about"
+              className={`font-medium hover:text-pink-dark transition-colors ${
+                isActive('/about') ? 'text-pink-dark' : 'text-gray-800'
+              }`}
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"
+              className={`font-medium hover:text-pink-dark transition-colors ${
+                isActive('/contact') ? 'text-pink-dark' : 'text-gray-800'
+              }`}
+            >
+              Contact
+            </Link>
+          </nav>
+
+          {/* Contact & Cart */}
+          <div className="hidden md:flex items-center space-x-4">
+            <a href="tel:9585329788" className="flex items-center text-gray-700 hover:text-pink-dark transition-colors">
+              <Phone size={18} className="mr-2" />
               <span className="font-medium">9585329788</span>
             </a>
+            <Cart />
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="flex md:hidden items-center space-x-3">
+            <Cart />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border-t">
+          <div className="container mx-auto px-4 py-3 space-y-1">
+            <Link
+              to="/"
+              className={`block py-2 px-3 rounded-md ${
+                isActive('/') ? 'bg-pink-light text-pink-dark' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/brownies"
+              className={`block py-2 px-3 rounded-md ${
+                isActive('/brownies') ? 'bg-pink-light text-pink-dark' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Brownies
+            </Link>
+            <Link
+              to="/cakes"
+              className={`block py-2 px-3 rounded-md ${
+                isActive('/cakes') ? 'bg-pink-light text-pink-dark' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Cakes
+            </Link>
+            <Link
+              to="/about"
+              className={`block py-2 px-3 rounded-md ${
+                isActive('/about') ? 'bg-pink-light text-pink-dark' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"
+              className={`block py-2 px-3 rounded-md ${
+                isActive('/contact') ? 'bg-pink-light text-pink-dark' : 'text-gray-800 hover:bg-gray-100'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
+            </Link>
+            <div className="py-2 px-3">
+              <a href="tel:9585329788" className="flex items-center text-gray-700 hover:text-pink-dark transition-colors">
+                <Phone size={18} className="mr-2" />
+                <span className="font-medium">9585329788</span>
+              </a>
+            </div>
           </div>
         </div>
       )}
-    </nav>
+    </header>
   );
 };
 
