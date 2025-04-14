@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,22 +7,18 @@ import { browniesList, cakesList, cupcakesList, cakeJarsList, cakePopsList } fro
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductRecommender from '@/components/ProductRecommender';
-
 const Index = () => {
   const [featuredBrownies, setFeaturedBrownies] = useState<any[]>([]);
   const [featuredCakes, setFeaturedCakes] = useState<any[]>([]);
   const [featuredCupcakes, setFeaturedCupcakes] = useState<any[]>([]);
-  
   useEffect(() => {
     const randomBrownies = [...browniesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCakes = [...cakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCupcakes = [...cupcakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
-    
     setFeaturedBrownies(randomBrownies);
     setFeaturedCakes(randomCakes);
     setFeaturedCupcakes(randomCupcakes);
   }, []);
-  
   return <div className="min-h-screen flex flex-col">
       <Navbar />
       
@@ -39,7 +34,8 @@ const Index = () => {
             </p>
             <div className="flex items-center text-gray-700 mb-6">
               <MapPin className="text-pink-dark mr-2" size={18} />
-              <span>Now available in Coimbatore | Free delivery on orders above ₹500</span>
+              <span>Now available in Coimbatore |
+Free delivery on orders above ₹2666</span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="text-base">
@@ -200,18 +196,14 @@ const Index = () => {
                   </div>
                   <div>
                     <h3 className="font-bold">Delivery Charges</h3>
-                    <p className="text-gray-700">₹50 for orders below ₹500</p>
-                    <p className="text-gray-700">FREE delivery for orders above ₹500</p>
+                    <p className="text-gray-700">According To The Locations </p>
+                    <p className="text-gray-700">According To The Locations</p>
                   </div>
                 </div>
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
-              <img 
-                src="/lovable-uploads/693e7311-0892-452c-9029-18005da57c5e.jpg" 
-                alt="Dessert delivery" 
-                className="rounded-lg shadow-lg max-w-xs w-full h-auto"
-              />
+              <img src="/lovable-uploads/693e7311-0892-452c-9029-18005da57c5e.jpg" alt="Dessert delivery" className="rounded-lg shadow-lg max-w-xs w-full h-auto" />
             </div>
           </div>
         </div>
