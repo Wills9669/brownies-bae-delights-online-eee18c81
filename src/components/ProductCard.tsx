@@ -9,10 +9,11 @@ interface ProductCardProps {
   name: string;
   price: string;
   image: string;
-  category: string; // Changed from strict literal types to allow any string
+  category: string; 
+  description?: string;
 }
 
-const ProductCard = ({ id, name, price, image, category }: ProductCardProps) => {
+const ProductCard = ({ id, name, price, image, category, description }: ProductCardProps) => {
   const { addToCart } = useCart();
   
   // Ensure category is one of the valid values for routing purposes
@@ -46,6 +47,7 @@ const ProductCard = ({ id, name, price, image, category }: ProductCardProps) => 
         <Link to={`/product/${safeCategory}/${id}`}>
           <h3 className="font-bold text-lg mb-1 hover:text-pink-dark transition-colors">{name}</h3>
         </Link>
+        {description && <p className="text-gray-600 text-sm mb-2">{description}</p>}
         <p className="text-pink-dark font-medium mb-3">₹{price}</p>
         <Button 
           onClick={handleAddToCart}

@@ -32,6 +32,7 @@ export interface Cupcake {
   name: string;
   price: string;
   image: string;
+  description?: string;
 }
 
 export const cupcakesList: Cupcake[] = [
@@ -39,31 +40,36 @@ export const cupcakesList: Cupcake[] = [
     id: 'vanilla-cupcake',
     name: 'Vanilla Cupcake',
     price: '30',
-    image: '/lovable-uploads/5e32471e-ae35-49f6-8fbd-35adaca3ca00.png'
+    image: '/lovable-uploads/80b7aba9-571c-4ff5-af43-14e2a96f08b0.png',
+    description: 'Light and fluffy vanilla cupcake topped with creamy vanilla frosting and delicate sprinkles.'
   },
   {
     id: 'chocolate-cupcake',
     name: 'Chocolate Cupcake',
     price: '35',
-    image: '/lovable-uploads/5e32471e-ae35-49f6-8fbd-35adaca3ca00.png'
+    image: '/lovable-uploads/145c73a4-518d-4d8b-9b9d-299ce3ec0479.png',
+    description: 'Rich chocolate cupcake topped with smooth chocolate frosting.'
   },
   {
     id: 'red-velvet-cupcake',
     name: 'Red Velvet Cupcake',
     price: '40',
-    image: '/lovable-uploads/5e32471e-ae35-49f6-8fbd-35adaca3ca00.png'
+    image: '/lovable-uploads/a15ec916-c054-464e-8676-4b65197bba2f.png',
+    description: 'Classic red velvet cupcake with cream cheese frosting and red velvet crumbs.'
   },
   {
     id: 'brownie-cupcake',
     name: 'Brownie Cupcake',
     price: '45',
-    image: '/lovable-uploads/5e32471e-ae35-49f6-8fbd-35adaca3ca00.png'
+    image: '/lovable-uploads/a3c0a5a5-8880-45b3-a809-6faca281417d.png',
+    description: 'Decadent chocolate brownie cupcake topped with ice cream and chocolate drizzle.'
   },
   {
     id: 'choco-lava-cupcake',
-    name: 'Choco Lava Cupcake',
+    name: 'Choco Chip Cupcake',
     price: '40',
-    image: '/lovable-uploads/5e32471e-ae35-49f6-8fbd-35adaca3ca00.png'
+    image: '/lovable-uploads/8823ff7f-1f87-465b-a0a3-7e6017d76578.png',
+    description: 'Chocolate cupcake topped with chocolate frosting and chocolate chips.'
   }
 ];
 
