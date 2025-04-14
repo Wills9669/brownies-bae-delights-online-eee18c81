@@ -6,24 +6,19 @@ import ProductCard from '@/components/ProductCard';
 import { browniesList, cakesList, cupcakesList, cakeJarsList, cakePopsList } from '@/data/index';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-
 const Index = () => {
   const [featuredBrownies, setFeaturedBrownies] = useState<any[]>([]);
   const [featuredCakes, setFeaturedCakes] = useState<any[]>([]);
   const [featuredCupcakes, setFeaturedCupcakes] = useState<any[]>([]);
-
   useEffect(() => {
     const randomBrownies = [...browniesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCakes = [...cakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCupcakes = [...cupcakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
-    
     setFeaturedBrownies(randomBrownies);
     setFeaturedCakes(randomCakes);
     setFeaturedCupcakes(randomCupcakes);
   }, []);
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -47,32 +42,22 @@ const Index = () => {
           </div>
           <div className="md:w-1/2 grid grid-cols-2 gap-4">
             <div className="animate-float">
-              <img
-                src="/lovable-uploads/f71f3e41-32b2-45d7-831e-b7b13bd1d6d1.png"
-                alt="Chocolate cake with cherries"
-                className="rounded-lg shadow-lg h-48 w-full object-cover"
-              />
+              <img alt="Chocolate cake with cherries" className="rounded-lg shadow-lg h-48 w-full object-cover" src="/lovable-uploads/2a5e6167-077a-40ce-9ace-ea0528660eed.jpg" />
             </div>
-            <div className="animate-float" style={{ animationDelay: "1s" }}>
-              <img
-                src="/lovable-uploads/4b333cdc-9d82-4ca8-81be-1f01d9d415c1.png"
-                alt="Chocolate cupcakes"
-                className="rounded-lg shadow-lg h-48 w-full object-cover"
-              />
+            <div className="animate-float" style={{
+            animationDelay: "1s"
+          }}>
+              <img src="/lovable-uploads/4b333cdc-9d82-4ca8-81be-1f01d9d415c1.png" alt="Chocolate cupcakes" className="rounded-lg shadow-lg h-48 w-full object-cover" />
             </div>
-            <div className="animate-float" style={{ animationDelay: "1.5s" }}>
-              <img
-                src="/lovable-uploads/f10d9d01-5a6c-42a6-a63d-b36c0ae8ff85.png"
-                alt="Peanut butter brownies"
-                className="rounded-lg shadow-lg h-48 w-full object-cover"
-              />
+            <div className="animate-float" style={{
+            animationDelay: "1.5s"
+          }}>
+              <img src="/lovable-uploads/f10d9d01-5a6c-42a6-a63d-b36c0ae8ff85.png" alt="Peanut butter brownies" className="rounded-lg shadow-lg h-48 w-full object-cover" />
             </div>
-            <div className="animate-float" style={{ animationDelay: "0.5s" }}>
-              <img
-                src="/lovable-uploads/88e851af-dbdb-442c-8b91-1c71242d260d.png"
-                alt="Red velvet cupcakes"
-                className="rounded-lg shadow-lg h-48 w-full object-cover"
-              />
+            <div className="animate-float" style={{
+            animationDelay: "0.5s"
+          }}>
+              <img src="/lovable-uploads/88e851af-dbdb-442c-8b91-1c71242d260d.png" alt="Red velvet cupcakes" className="rounded-lg shadow-lg h-48 w-full object-cover" />
             </div>
           </div>
         </div>
@@ -124,16 +109,7 @@ const Index = () => {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredBrownies.map((brownie) => (
-              <ProductCard 
-                key={brownie.id}
-                id={brownie.id}
-                name={brownie.name}
-                price={brownie.perPiecePrice}
-                image={brownie.image}
-                category="brownies"
-              />
-            ))}
+            {featuredBrownies.map(brownie => <ProductCard key={brownie.id} id={brownie.id} name={brownie.name} price={brownie.perPiecePrice} image={brownie.image} category="brownies" />)}
           </div>
         </div>
       </section>
@@ -150,16 +126,7 @@ const Index = () => {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredCakes.map((cake) => (
-              <ProductCard 
-                key={cake.id}
-                id={cake.id}
-                name={cake.name}
-                price={cake.halfKgPrice}
-                image={cake.image}
-                category="cakes"
-              />
-            ))}
+            {featuredCakes.map(cake => <ProductCard key={cake.id} id={cake.id} name={cake.name} price={cake.halfKgPrice} image={cake.image} category="cakes" />)}
           </div>
         </div>
       </section>
@@ -176,17 +143,7 @@ const Index = () => {
             </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredCupcakes.map((cupcake) => (
-              <ProductCard 
-                key={cupcake.id}
-                id={cupcake.id}
-                name={cupcake.name}
-                price={cupcake.price}
-                image={cupcake.image}
-                category="other"
-                description={cupcake.description}
-              />
-            ))}
+            {featuredCupcakes.map(cupcake => <ProductCard key={cupcake.id} id={cupcake.id} name={cupcake.name} price={cupcake.price} image={cupcake.image} category="other" description={cupcake.description} />)}
           </div>
         </div>
       </section>
@@ -196,19 +153,15 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-10">What Our Customers Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow-md">
+            {[1, 2, 3].map(i => <div key={i} className="bg-white p-6 rounded-lg shadow-md">
                 <div className="flex text-yellow-400 mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} fill="currentColor" />
-                  ))}
+                  {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
                 </div>
                 <p className="mb-4 text-gray-700">
                   "The desserts from Brownies Bae are absolutely divine! Perfect texture, rich flavor, and just the right amount of sweetness. Will definitely order again!"
                 </p>
                 <p className="font-medium">- Happy Customer</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -235,8 +188,6 @@ const Index = () => {
       </section>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
