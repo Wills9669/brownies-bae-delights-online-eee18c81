@@ -47,7 +47,7 @@ const Index = () => {
             <div className="animate-float" style={{
             animationDelay: "1s"
           }}>
-              <img alt="Chocolate cupcakes" className="rounded-lg shadow-lg h-48 w-full object-cover" src="/lovable-uploads/e6c7ced3-b4b0-429f-9854-c1f6e9e94477.jpg" />
+              <img alt="Chocolate cupcakes" className="rounded-lg shadow-lg h-48 w-full object-cover" src="/lovable-uploads/ea39afb1-82f4-49c9-ac8b-2eeeb3a9da79.jpg" />
             </div>
             <div className="animate-float" style={{
             animationDelay: "1.5s"
