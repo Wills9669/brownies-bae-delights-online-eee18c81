@@ -8,7 +8,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Link } from "react-router-dom";
-import { Cake, Cupcake, Cookie, CakeSlice } from "lucide-react";
+import { Cake, Cookie, CakeSlice, PieChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import React from "react";
 
@@ -35,7 +35,7 @@ const ProductNavMenu = () => {
                 </div>
               </Link>
               <Link to="/cupcakes" className="flex items-start space-x-3 rounded-md p-3 hover:bg-pink-light">
-                <Cupcake className="h-6 w-6 text-pink-dark flex-shrink-0" />
+                <PieChart className="h-6 w-6 text-pink-dark flex-shrink-0" />
                 <div>
                   <div className="font-medium">Cupcakes</div>
                   <p className="text-sm text-gray-600">Delicious bite-sized cupcakes with premium frosting.</p>

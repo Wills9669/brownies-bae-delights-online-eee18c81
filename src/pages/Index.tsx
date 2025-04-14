@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Star, Cupcake, CakeSlice, Cookie, Cake } from 'lucide-react';
+import { ArrowRight, Star, Cookie, CakeSlice, Cake, PieChart } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { browniesList, cakesList, cupcakesList, cakeJarsList, cakePopsList } from '@/data/index';
 import Navbar from '@/components/Navbar';
@@ -14,7 +13,6 @@ const Index = () => {
   const [featuredCupcakes, setFeaturedCupcakes] = useState<any[]>([]);
 
   useEffect(() => {
-    // Select random products for featured sections
     const randomBrownies = [...browniesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCakes = [...cakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCupcakes = [...cupcakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
@@ -96,7 +94,7 @@ const Index = () => {
               <p className="text-gray-600 text-sm">Special divine cakes for every occasion</p>
             </Link>
             <Link to="/cupcakes" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition duration-300">
-              <Cupcake className="h-14 w-14 mx-auto mb-4 text-pink-dark" />
+              <PieChart className="h-14 w-14 mx-auto mb-4 text-pink-dark" />
               <h3 className="text-xl font-semibold mb-2">Cupcakes</h3>
               <p className="text-gray-600 text-sm">Delicious bite-sized frosted cupcakes</p>
             </Link>
