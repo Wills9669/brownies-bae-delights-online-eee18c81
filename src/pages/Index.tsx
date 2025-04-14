@@ -34,8 +34,8 @@ const Index = () => {
             </p>
             <div className="flex items-center text-gray-700 mb-6">
               <MapPin className="text-pink-dark mr-2" size={18} />
-              <span>Now available in Coimbatore |
-Free delivery on orders above ₹2666</span>
+              <span>Now available in Coimbatore | Free delivery on orders above ₹2888
+            </span>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="text-base">
