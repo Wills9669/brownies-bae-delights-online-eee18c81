@@ -196,7 +196,7 @@ Free delivery on orders above ₹2666</span>
                   </div>
                   <div>
                     <h3 className="font-bold">Delivery Charges</h3>
-                    <p className="text-gray-700">According To The Locations </p>
+                    <p className="text-gray-700">Free Delivery Above 2666 </p>
                     <p className="text-gray-700">According To The Locations</p>
                   </div>
                 </div>
