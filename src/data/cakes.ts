@@ -100,8 +100,8 @@ export const cakesList: Cake[] = [
   {
     id: 'lotus-biscoff-cake',
     name: 'Lotus Biscoff Cake',
-    halfKgPrice: '1000',
-    oneKgPrice: '3300',
+    halfKgPrice: '580',
+    oneKgPrice: '1099',
     image: '/lovable-uploads/80b2e418-4b8f-4bc1-a409-fa99c49e591e.png',
     description: 'Luxurious cake featuring layers of caramelized biscuit spread and crushed Lotus Biscoff cookies.'
   },
@@ -136,5 +136,45 @@ export const cakesList: Cake[] = [
     oneKgPrice: '1029',
     image: '/lovable-uploads/f71f3e41-32b2-45d7-831e-b7b13bd1d6d1.png',
     description: 'Classic red velvet cake with subtle cocoa flavor and cream cheese frosting.'
+  },
+  {
+    id: 'double-chocolate-brownie-cake',
+    name: 'Double Chocolate Brownie Cake',
+    halfKgPrice: '550',
+    oneKgPrice: '998',
+    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    description: 'Rich double chocolate cake with brownie-like texture and fudgy chocolate frosting.'
+  },
+  {
+    id: 'choco-chip-cake',
+    name: 'Choco Chip Cake',
+    halfKgPrice: '450',
+    oneKgPrice: '850',
+    image: '/lovable-uploads/1c54712c-519e-4052-8595-0bae4294a786.png',
+    description: 'Moist chocolate cake loaded with chocolate chips throughout for extra chocolate goodness.'
+  },
+  {
+    id: 'banana-cake',
+    name: 'Banana Cake',
+    halfKgPrice: '200',
+    oneKgPrice: '400',
+    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    description: 'Moist banana-flavored cake made with ripe bananas for natural sweetness and flavor.'
+  },
+  {
+    id: 'plum-cake',
+    name: 'Plum Cake',
+    halfKgPrice: '350',
+    oneKgPrice: '650',
+    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    description: 'Traditional cake made with dried fruits, nuts and spices, perfect for holiday celebrations.'
+  },
+  {
+    id: 'tea-cake',
+    name: 'Tea Cake',
+    halfKgPrice: '250',
+    oneKgPrice: '400',
+    image: '/lovable-uploads/80b2e418-4b8f-4bc1-a409-fa99c49e591e.png',
+    description: 'Light and delicate cake perfect for accompanying afternoon tea with subtle flavors.'
   }
 ];

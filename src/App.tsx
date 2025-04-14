@@ -8,6 +8,9 @@ import { CartProvider } from "./context/CartContext";
 import Index from "./pages/Index";
 import BrowniesPage from "./pages/BrowniesPage";
 import CakesPage from "./pages/CakesPage";
+import CupcakesPage from "./pages/CupcakesPage";
+import CakeJarsPage from "./pages/CakeJarsPage";
+import CakePopsPage from "./pages/CakePopsPage";
 import OtherProductsPage from "./pages/OtherProductsPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
@@ -27,6 +30,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/brownies" element={<BrowniesPage />} />
             <Route path="/cakes" element={<CakesPage />} />
+            <Route path="/cupcakes" element={<CupcakesPage />} />
+            <Route path="/cake-jars" element={<CakeJarsPage />} />
+            <Route path="/cake-pops" element={<CakePopsPage />} />
             <Route path="/other-products" element={<OtherProductsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />

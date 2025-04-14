@@ -17,9 +17,24 @@ const ProductCard = ({ id, name, price, image, category, description }: ProductC
   const { addToCart } = useCart();
   
   // Ensure category is one of the valid values for routing purposes
-  const safeCategory = ['brownies', 'cakes', 'other'].includes(category) 
-    ? category 
-    : 'other';
+  const getCategoryForRouting = (category: string) => {
+    switch(category) {
+      case 'brownies':
+        return 'brownies';
+      case 'cakes':
+        return 'cakes';
+      case 'cupcakes':
+        return 'cupcakes';
+      case 'cake-jars':
+        return 'cake-jars';
+      case 'cake-pops':
+        return 'cake-pops';
+      default:
+        return 'other';
+    }
+  };
+  
+  const safeCategory = getCategoryForRouting(category);
   
   const handleAddToCart = () => {
     addToCart({
