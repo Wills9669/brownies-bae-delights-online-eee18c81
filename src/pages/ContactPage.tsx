@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Phone, Mail, Clock, Send } from 'lucide-react';
+import { Phone, Mail, Clock, Send, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -79,10 +79,20 @@ const ContactPage = () => {
                   </div>
                   
                   <div className="flex items-start gap-4">
+                    <MapPin className="mt-1" size={20} />
+                    <div>
+                      <h3 className="font-medium mb-1">Store Location</h3>
+                      <p>123 Dessert Lane, RS Puram</p>
+                      <p>Coimbatore, Tamil Nadu 641002</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
                     <Clock className="mt-1" size={20} />
                     <div>
                       <h3 className="font-medium mb-1">Hours</h3>
                       <p>Open 24 hours for custom orders</p>
+                      <p>Store hours: 10 AM - 8 PM Daily</p>
                     </div>
                   </div>
                 </div>

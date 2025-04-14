@@ -1,23 +1,29 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Star, Cookie, CakeSlice, Cake, PieChart } from 'lucide-react';
+import { ArrowRight, Star, Cookie, CakeSlice, Cake, PieChart, MapPin, Truck, Bot, Search } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { browniesList, cakesList, cupcakesList, cakeJarsList, cakePopsList } from '@/data/index';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ProductRecommender from '@/components/ProductRecommender';
+
 const Index = () => {
   const [featuredBrownies, setFeaturedBrownies] = useState<any[]>([]);
   const [featuredCakes, setFeaturedCakes] = useState<any[]>([]);
   const [featuredCupcakes, setFeaturedCupcakes] = useState<any[]>([]);
+  
   useEffect(() => {
     const randomBrownies = [...browniesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCakes = [...cakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
     const randomCupcakes = [...cupcakesList].sort(() => 0.5 - Math.random()).slice(0, 4);
+    
     setFeaturedBrownies(randomBrownies);
     setFeaturedCakes(randomCakes);
     setFeaturedCupcakes(randomCupcakes);
   }, []);
+  
   return <div className="min-h-screen flex flex-col">
       <Navbar />
       
@@ -28,9 +34,13 @@ const Index = () => {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
               Delicious <span className="text-pink-dark">Handcrafted</span> Desserts
             </h1>
-            <p className="text-lg mb-8 text-gray-700">
+            <p className="text-lg mb-4 text-gray-700">
               Indulge in our premium brownies, cakes, cupcakes and more made with the finest ingredients. Perfect for any occasion or just to treat yourself!
             </p>
+            <div className="flex items-center text-gray-700 mb-6">
+              <MapPin className="text-pink-dark mr-2" size={18} />
+              <span>Now available in Coimbatore | Free delivery on orders above ₹500</span>
+            </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild size="lg" className="text-base">
                 <Link to="/brownies">Order Brownies</Link>
@@ -63,32 +73,43 @@ const Index = () => {
         </div>
       </section>
       
+      {/* AI Recommender Section */}
+      <section className="py-12 bg-gradient-to-r from-pink-light to-white">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <Bot size={28} className="text-pink-dark" />
+            <h2 className="text-3xl font-bold text-center">Let Our Dessert AI Recommend You Something Sweet</h2>
+          </div>
+          <ProductRecommender />
+        </div>
+      </section>
+      
       {/* Product Categories */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-10">Our Product Categories</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            <Link to="/brownies" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition duration-300">
+            <Link to="/brownies" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition-transform hover:scale-105 duration-300">
               <Cookie className="h-14 w-14 mx-auto mb-4 text-pink-dark" />
               <h3 className="text-xl font-semibold mb-2">Brownies</h3>
               <p className="text-gray-600 text-sm">Rich and fudgy handcrafted brownies</p>
             </Link>
-            <Link to="/cakes" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition duration-300">
+            <Link to="/cakes" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition-transform hover:scale-105 duration-300">
               <Cake className="h-14 w-14 mx-auto mb-4 text-pink-dark" />
               <h3 className="text-xl font-semibold mb-2">Cakes</h3>
               <p className="text-gray-600 text-sm">Special divine cakes for every occasion</p>
             </Link>
-            <Link to="/cupcakes" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition duration-300">
+            <Link to="/cupcakes" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition-transform hover:scale-105 duration-300">
               <PieChart className="h-14 w-14 mx-auto mb-4 text-pink-dark" />
               <h3 className="text-xl font-semibold mb-2">Cupcakes</h3>
               <p className="text-gray-600 text-sm">Delicious bite-sized frosted cupcakes</p>
             </Link>
-            <Link to="/cake-jars" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition duration-300">
+            <Link to="/cake-jars" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition-transform hover:scale-105 duration-300">
               <CakeSlice className="h-14 w-14 mx-auto mb-4 text-pink-dark" />
               <h3 className="text-xl font-semibold mb-2">Cake Jars</h3>
               <p className="text-gray-600 text-sm">Layered desserts in convenient jars</p>
             </Link>
-            <Link to="/cake-pops" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition duration-300">
+            <Link to="/cake-pops" className="bg-pink-light rounded-lg p-6 text-center hover:shadow-md transition-transform hover:scale-105 duration-300">
               <CakeSlice className="h-14 w-14 mx-auto mb-4 text-pink-dark transform rotate-45" />
               <h3 className="text-xl font-semibold mb-2">Cake Pops</h3>
               <p className="text-gray-600 text-sm">Fun bite-sized cake pops on a stick</p>
@@ -148,20 +169,86 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Testimonials */}
+      {/* Delivery Information */}
       <section className="py-12 bg-pink-light">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 max-w-5xl mx-auto">
+            <div className="md:w-1/2">
+              <h2 className="text-3xl font-bold mb-4">Delivery in Coimbatore</h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="bg-white p-2 rounded-full">
+                    <Truck size={24} className="text-pink-dark" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Same Day Delivery</h3>
+                    <p className="text-gray-700">Order before 2 PM for same-day delivery</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="bg-white p-2 rounded-full">
+                    <MapPin size={24} className="text-pink-dark" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Delivery Areas</h3>
+                    <p className="text-gray-700">We deliver across Coimbatore City and nearby areas</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="bg-white p-2 rounded-full">
+                    <Star size={24} className="text-pink-dark" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold">Delivery Charges</h3>
+                    <p className="text-gray-700">₹50 for orders below ₹500</p>
+                    <p className="text-gray-700">FREE delivery for orders above ₹500</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <img 
+                src="/lovable-uploads/693e7311-0892-452c-9029-18005da57c5e.jpg" 
+                alt="Dessert delivery" 
+                className="rounded-lg shadow-lg max-w-xs w-full h-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Testimonials */}
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-10">What Our Customers Say</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <div key={i} className="bg-white p-6 rounded-lg shadow-md">
-                <div className="flex text-yellow-400 mb-3">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
-                </div>
-                <p className="mb-4 text-gray-700">
-                  "The desserts from Brownies Bae are absolutely divine! Perfect texture, rich flavor, and just the right amount of sweetness. Will definitely order again!"
-                </p>
-                <p className="font-medium">- Happy Customer</p>
-              </div>)}
+            <div className="bg-pink-light p-6 rounded-lg shadow-md transform transition-transform hover:scale-105">
+              <div className="flex text-yellow-400 mb-3">
+                {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+              </div>
+              <p className="mb-4 text-gray-700">
+                "The chocolate brownies were an absolute delight! So fudgy and rich. The delivery was prompt and the packaging was beautiful. Will definitely order again!"
+              </p>
+              <p className="font-medium">- Priya S., Coimbatore</p>
+            </div>
+            <div className="bg-pink-light p-6 rounded-lg shadow-md transform transition-transform hover:scale-105">
+              <div className="flex text-yellow-400 mb-3">
+                {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+              </div>
+              <p className="mb-4 text-gray-700">
+                "I ordered the red velvet cake for my daughter's birthday and it was a huge hit! The texture was perfect and the cream cheese frosting was divine. Thank you for making her day special!"
+              </p>
+              <p className="font-medium">- Rajesh M., RS Puram</p>
+            </div>
+            <div className="bg-pink-light p-6 rounded-lg shadow-md transform transition-transform hover:scale-105">
+              <div className="flex text-yellow-400 mb-3">
+                {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+              </div>
+              <p className="mb-4 text-gray-700">
+                "The cake pops were adorable and delicious! My kids loved them. The personalized recommendation from your AI was spot on - exactly what we were looking for. Amazing service!"
+              </p>
+              <p className="font-medium">- Lakshmi V., Gandhipuram</p>
+            </div>
           </div>
         </div>
       </section>
