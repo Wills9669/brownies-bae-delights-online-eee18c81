@@ -1,10 +1,7 @@
-
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-
 const AboutPage = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Navbar />
       
       {/* Header */}
@@ -29,16 +26,8 @@ const AboutPage = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <img 
-                src="/lovable-uploads/1c54712c-519e-4052-8595-0bae4294a786.png" 
-                alt="Chocolate cake" 
-                className="rounded-lg shadow-md h-64 w-full object-cover"
-              />
-              <img 
-                src="/lovable-uploads/3df4beea-c1cf-4704-8484-a6feb0953155.png" 
-                alt="Chocolate brownies" 
-                className="rounded-lg shadow-md h-64 w-full object-cover"
-              />
+              <img src="/lovable-uploads/1c54712c-519e-4052-8595-0bae4294a786.png" alt="Chocolate cake" className="rounded-lg shadow-md h-64 w-full object-cover" />
+              <img src="/lovable-uploads/3df4beea-c1cf-4704-8484-a6feb0953155.png" alt="Chocolate brownies" className="rounded-lg shadow-md h-64 w-full object-cover" />
             </div>
             
             <div className="mb-8">
@@ -68,7 +57,7 @@ const AboutPage = () => {
               <p className="font-medium">
                 Phone: <a href="tel:9585329788" className="text-pink-dark">9585329788</a>
               </p>
-              <p className="font-medium">
+              <p className="font-medium text-base">
                 Email: <a href="mailto:browniesbae6996@gmail.com" className="text-pink-dark">browniesbae6996@gmail.com</a>
               </p>
             </div>
@@ -77,8 +66,6 @@ const AboutPage = () => {
       </div>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default AboutPage;
