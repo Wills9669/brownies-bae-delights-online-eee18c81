@@ -1,9 +1,12 @@
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ImageOff } from 'lucide-react';
+import { ShoppingCart, ImageOff, Edit } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ImageUploader from '@/components/ImageUploader';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   id: string;
@@ -24,6 +27,8 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const { addToCart } = useCart();
   const [imageError, setImageError] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState(image);
 
   // Ensure category is one of the valid values for routing purposes
   const getCategoryForRouting = (category: string) => {
@@ -60,17 +65,39 @@ const ProductCard = ({
     setImageError(true);
   };
 
+  const handleImageUploaded = (newImageUrl: string) => {
+    setCurrentImage(newImageUrl || image);
+    if (newImageUrl) {
+      toast.success("Image updated successfully!");
+    }
+    setIsEditDialogOpen(false);
+  };
+
   return (
     <div className="product-card bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow duration-300">
       <Link to={`/product/${safeCategory}/${id}`}>
-        <div className="h-60 overflow-hidden bg-gray-50">
+        <div className="h-60 overflow-hidden bg-gray-50 relative group">
           {!imageError ? (
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full hover:scale-105 transition-transform duration-500 object-contain"
-              onError={handleImageError}
-            />
+            <>
+              <img
+                src={currentImage}
+                alt={name}
+                className="w-full h-full hover:scale-105 transition-transform duration-500 object-contain"
+                onError={handleImageError}
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsEditDialogOpen(true);
+                  }} 
+                  className="p-2 bg-white rounded-full"
+                >
+                  <Edit className="text-gray-800" size={18} />
+                </button>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
               <ImageOff size={32} />
@@ -90,6 +117,16 @@ const ProductCard = ({
           Add to Cart
         </Button>
       </div>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <h2 className="text-xl font-bold mb-4">Edit Image for {name}</h2>
+          <ImageUploader 
+            onImageUploaded={handleImageUploaded}
+            currentImage={currentImage}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
