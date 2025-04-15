@@ -1,8 +1,7 @@
-
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Image as ImageIcon, X } from 'lucide-react';
+import { Upload, Image as ImageIcon, X, Edit2 } from 'lucide-react';
 
 interface ImageUploaderProps {
   onImageUploaded: (imageUrl: string) => void;
@@ -19,21 +18,20 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Reset any previous error
     setError(null);
     
-    // Check file size (limit to 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
-      toast.error('Image size must be less than 5MB');
+    // Validate file size (increased to 10MB for high-quality images)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image size must be less than 10MB');
+      toast.error('Image size must be less than 10MB');
       return;
     }
     
-    // Check file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    // Validate file type with more formats
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
     if (!validTypes.includes(file.type)) {
-      setError('Please upload a valid image (JPEG, PNG, GIF, or WEBP)');
-      toast.error('Please upload a valid image (JPEG, PNG, GIF, or WEBP)');
+      setError('Please upload a valid image (JPEG, PNG, GIF, WEBP, HEIC)');
+      toast.error('Please upload a valid image (JPEG, PNG, GIF, WEBP, HEIC)');
       return;
     }
     
@@ -49,8 +47,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     setIsUploading(true);
     
     try {
-      // For local development, use the local preview
-      // In production, this would connect to your storage service
       const uploadedUrl = URL.createObjectURL(file);
       onImageUploaded(uploadedUrl);
       toast.success("Image updated successfully!");
@@ -63,39 +59,48 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     }
   };
 
-  const removeImage = () => {
-    setPreviewImage(undefined);
-    onImageUploaded('');
-    // Clear the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    toast.info('Image removed');
-  };
-
   return (
     <div className="flex flex-col items-center gap-4">
       {previewImage ? (
-        <div className="relative mb-4">
+        <div className="relative group mb-4">
           <div className="h-48 w-48 rounded-md overflow-hidden border border-gray-300">
             <img
               src={previewImage}
               alt="Product preview"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity group-hover:opacity-75"
             />
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <label htmlFor="image-upload-edit" className="cursor-pointer">
+                <Edit2 className="text-white" size={24} />
+              </label>
+              <input
+                id="image-upload-edit"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
           </div>
           <button 
             onClick={removeImage}
-            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
             title="Remove image"
           >
             <X size={16} />
           </button>
         </div>
       ) : (
-        <div className="mb-4 h-48 w-48 flex items-center justify-center bg-gray-100 border border-dashed border-gray-300 rounded-md">
-          <ImageIcon className="text-gray-400" size={48} />
-          <span className="ml-2 text-gray-400">No image selected</span>
+        <div className="mb-4 h-48 w-48 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-md hover:border-pink-dark transition-colors cursor-pointer">
+          <ImageIcon className="text-gray-400 mb-2" size={48} />
+          <span className="text-sm text-gray-500">Click to upload image</span>
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
         </div>
       )}
       
@@ -103,26 +108,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
         <p className="text-red-500 text-xs">{error}</p>
       )}
       
-      <label htmlFor="image-upload">
-        <Button 
-          variant="outline" 
-          className="cursor-pointer relative gap-2" 
-          disabled={isUploading}
-        >
-          <Upload size={16} />
-          {isUploading ? "Uploading..." : "Upload Image"}
-          <input
-            id="image-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            ref={fileInputRef}
-          />
-        </Button>
-      </label>
-      <p className="text-xs text-gray-500">
-        Click to select an image. Recommended size: 600x600px. Max size: 5MB.
+      <p className="text-xs text-gray-500 text-center max-w-[200px]">
+        Upload high-quality images up to 10MB (JPEG, PNG, GIF, WEBP, HEIC)
       </p>
     </div>
   );
