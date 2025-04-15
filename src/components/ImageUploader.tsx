@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -59,6 +60,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     }
   };
 
+  // Add the missing removeImage function
+  const removeImage = () => {
+    setPreviewImage(undefined);
+    onImageUploaded('');
+    toast.success("Image removed successfully!");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="flex flex-col items-center gap-4">
       {previewImage ? (
@@ -79,6 +90,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
                 accept="image/*"
                 onChange={handleFileChange}
                 className="hidden"
+                ref={fileInputRef}
               />
             </div>
           </div>
@@ -100,6 +112,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
             accept="image/*"
             onChange={handleFileChange}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            ref={fileInputRef}
           />
         </div>
       )}
