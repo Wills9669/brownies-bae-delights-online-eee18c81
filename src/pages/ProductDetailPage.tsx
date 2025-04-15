@@ -124,12 +124,15 @@ const ProductDetailPage = () => {
   };
   
   const handleAddToCart = () => {
+    // Get the updated image from localStorage if it exists
+    const savedImage = localStorage.getItem(`product-image-${product.id}`);
+    
     addToCart({
       id: product.id,
       name: product.name,
       price: parseFloat(getPrice()),
       quantity: quantity,
-      image: product.image,
+      image: savedImage || product.image,
       category: category || 'other',
       size: getSizeLabel()
     });
@@ -143,6 +146,14 @@ const ProductDetailPage = () => {
     setShowQrPayment(false);
     toast.success("Payment successful! Your order has been placed.");
   };
+  
+  if (loading) {
+    return <ProductLoading />;
+  }
+  
+  if (!product) {
+    return <ProductNotFound category={category} />;
+  }
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -170,8 +181,12 @@ const ProductDetailPage = () => {
           ) : (
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-2">
-                {/* Product Images */}
-                <ProductImageGallery mainImage={product.image} productName={product.name} />
+                {/* Product Images - Pass the product ID for localStorage persistence */}
+                <ProductImageGallery 
+                  mainImage={product.image} 
+                  productName={product.name}
+                  productId={product.id}
+                />
                 
                 {/* Product Info */}
                 <div className="p-6 md:p-8">

@@ -1,19 +1,28 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageOff, Edit } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
 
 interface ProductImageGalleryProps {
   mainImage: string;
   productName: string;
+  productId: string; // Added productId to uniquely identify the product
 }
 
-const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, productName }) => {
+const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, productName, productId }) => {
   const [activeImage, setActiveImage] = useState(mainImage);
   const [imageError, setImageError] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
+  // Load saved image from localStorage on component mount
+  useEffect(() => {
+    const savedImage = localStorage.getItem(`product-image-${productId}`);
+    if (savedImage) {
+      setActiveImage(savedImage);
+    }
+  }, [productId]);
   
   const handleImageError = () => {
     setImageError(true);
@@ -22,6 +31,8 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
 
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
+      // Save to localStorage for persistence across page reloads
+      localStorage.setItem(`product-image-${productId}`, newImageUrl);
       setActiveImage(newImageUrl);
       setImageError(false);
       toast.success("Image updated successfully!");
@@ -65,13 +76,17 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
       </div>
       <div className="grid grid-cols-4 gap-2">
         <button 
-          onClick={() => setActiveImage(mainImage)}
+          onClick={() => {
+            // Use saved image if available, otherwise use original
+            const savedImage = localStorage.getItem(`product-image-${productId}`);
+            setActiveImage(savedImage || mainImage);
+          }}
           className={`h-20 rounded-md overflow-hidden bg-gray-50 transition-all hover:opacity-100 ${
             activeImage === mainImage ? 'ring-2 ring-pink-dark' : 'opacity-70'
           }`}
         >
           <img 
-            src={mainImage} 
+            src={localStorage.getItem(`product-image-${productId}`) || mainImage} 
             alt={productName} 
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -83,7 +98,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
-          <h2 className="text-xl font-bold mb-4">Edit Image for {productName}</h2>
+          <DialogTitle>Edit Image for {productName}</DialogTitle>
           <ImageUploader 
             onImageUploaded={handleImageUploaded}
             currentImage={activeImage}

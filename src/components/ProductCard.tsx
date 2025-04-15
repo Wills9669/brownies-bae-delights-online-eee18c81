@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, ImageOff, Edit } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
-import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
 
@@ -30,6 +30,14 @@ const ProductCard = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
 
+  // Load saved image from localStorage on component mount
+  useEffect(() => {
+    const savedImage = localStorage.getItem(`product-image-${id}`);
+    if (savedImage) {
+      setCurrentImage(savedImage);
+    }
+  }, [id]);
+  
   // Ensure category is one of the valid values for routing purposes
   const getCategoryForRouting = (category: string) => {
     switch (category) {
@@ -56,7 +64,7 @@ const ProductCard = ({
       name,
       price: parseFloat(price),
       quantity: 1,
-      image,
+      image: currentImage,
       category: safeCategory
     });
   };
@@ -66,8 +74,11 @@ const ProductCard = ({
   };
 
   const handleImageUploaded = (newImageUrl: string) => {
-    setCurrentImage(newImageUrl || image);
     if (newImageUrl) {
+      // Save to localStorage for persistence across page reloads
+      localStorage.setItem(`product-image-${id}`, newImageUrl);
+      setCurrentImage(newImageUrl);
+      setImageError(false);
       toast.success("Image updated successfully!");
     }
     setIsEditDialogOpen(false);
@@ -127,7 +138,7 @@ const ProductCard = ({
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
-          <h2 className="text-xl font-bold mb-4">Edit Image for {name}</h2>
+          <DialogTitle>Edit Image for {name}</DialogTitle>
           <ImageUploader 
             onImageUploaded={handleImageUploaded}
             currentImage={currentImage}

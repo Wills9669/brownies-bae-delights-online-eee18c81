@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Upload, Image as ImageIcon, X, Edit2 } from 'lucide-react';
@@ -14,6 +14,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   const [previewImage, setPreviewImage] = useState<string | undefined>(currentImage);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Update preview if currentImage changes (e.g. from localStorage)
+  useEffect(() => {
+    setPreviewImage(currentImage);
+  }, [currentImage]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,21 +41,20 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       return;
     }
     
-    // Show preview immediately
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setPreviewImage(event.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-    
     setIsUploading(true);
     
     try {
-      const uploadedUrl = URL.createObjectURL(file);
-      onImageUploaded(uploadedUrl);
-      toast.success("Image updated successfully!");
+      // Create a persistent blob URL that will survive page reloads
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const dataUrl = event.target.result as string;
+          setPreviewImage(dataUrl);
+          // Pass data URL back to parent component to store in localStorage
+          onImageUploaded(dataUrl);
+        }
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       console.error('Upload error:', error);
       setError('Failed to upload image. Please try again.');
@@ -60,7 +64,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     }
   };
 
-  // Add the missing removeImage function
   const removeImage = () => {
     setPreviewImage(undefined);
     onImageUploaded('');
@@ -103,7 +106,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
           </button>
         </div>
       ) : (
-        <div className="mb-4 h-48 w-48 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-md hover:border-pink-dark transition-colors cursor-pointer">
+        <div className="mb-4 h-48 w-48 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-md hover:border-pink-dark transition-colors cursor-pointer relative">
           <ImageIcon className="text-gray-400 mb-2" size={48} />
           <span className="text-sm text-gray-500">Click to upload image</span>
           <input
@@ -121,9 +124,25 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
         <p className="text-red-500 text-xs">{error}</p>
       )}
       
+      {isUploading && (
+        <p className="text-blue-500 text-xs">Uploading image...</p>
+      )}
+      
       <p className="text-xs text-gray-500 text-center max-w-[200px]">
         Upload high-quality images up to 10MB (JPEG, PNG, GIF, WEBP, HEIC)
       </p>
+      
+      <Button 
+        onClick={() => {
+          if (previewImage) {
+            onImageUploaded(previewImage);
+          }
+        }}
+        disabled={isUploading || !previewImage}
+        className="w-full mt-2"
+      >
+        Save Changes
+      </Button>
     </div>
   );
 };
