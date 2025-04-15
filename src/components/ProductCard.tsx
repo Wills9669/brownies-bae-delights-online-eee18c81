@@ -1,7 +1,10 @@
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, ImageOff } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useState } from 'react';
+
 interface ProductCardProps {
   id: string;
   name: string;
@@ -10,6 +13,7 @@ interface ProductCardProps {
   category: string;
   description?: string;
 }
+
 const ProductCard = ({
   id,
   name,
@@ -18,9 +22,8 @@ const ProductCard = ({
   category,
   description
 }: ProductCardProps) => {
-  const {
-    addToCart
-  } = useCart();
+  const { addToCart } = useCart();
+  const [imageError, setImageError] = useState(false);
 
   // Ensure category is one of the valid values for routing purposes
   const getCategoryForRouting = (category: string) => {
@@ -39,7 +42,9 @@ const ProductCard = ({
         return 'other';
     }
   };
+  
   const safeCategory = getCategoryForRouting(category);
+  
   const handleAddToCart = () => {
     addToCart({
       id,
@@ -50,10 +55,28 @@ const ProductCard = ({
       category: safeCategory
     });
   };
-  return <div className="product-card bg-white rounded-lg overflow-hidden shadow">
+  
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  return (
+    <div className="product-card bg-white rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow duration-300">
       <Link to={`/product/${safeCategory}/${id}`}>
-        <div className="h-60 overflow-hidden">
-          <img src={image} alt={name} className="w-full h-full hover:scale-105 transition-transform duration-500 object-contain" />
+        <div className="h-60 overflow-hidden bg-gray-50">
+          {!imageError ? (
+            <img
+              src={image}
+              alt={name}
+              className="w-full h-full hover:scale-105 transition-transform duration-500 object-contain"
+              onError={handleImageError}
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+              <ImageOff size={32} />
+              <p className="mt-2 text-sm">Image unavailable</p>
+            </div>
+          )}
         </div>
       </Link>
       <div className="p-4">
@@ -67,6 +90,8 @@ const ProductCard = ({
           Add to Cart
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ProductCard;
