@@ -40,13 +40,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
               className="w-full h-full object-contain transition-all duration-300 group-hover:scale-105"
               onError={handleImageError}
             />
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
               <button
                 onClick={() => setIsEditDialogOpen(true)}
-                className="p-2 bg-white rounded-full shadow hover:shadow-md"
+                className="p-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow hover:bg-gray-100"
                 title="Edit image"
               >
-                <Edit size={18} />
+                <Edit size={20} className="text-gray-800" />
               </button>
             </div>
           </>
