@@ -53,10 +53,15 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
 
     updateProductImage();
     
+    // Listen for storage events from other tabs/components
     window.addEventListener('storage', updateProductImage);
+    
+    // Also listen for custom events from the same tab
+    window.addEventListener('productImageUpdated', updateProductImage);
     
     return () => {
       window.removeEventListener('storage', updateProductImage);
+      window.removeEventListener('productImageUpdated', updateProductImage);
     };
   }, [product.id, product.image]);
   
@@ -94,7 +99,9 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   const handleImageChange = (newImage: string) => {
     try {
       setProductImage(newImage);
-      // Storage event already dispatched in the ProductImageGallery component
+      // Dispatch custom event for other components in the same tab
+      window.dispatchEvent(new CustomEvent('productImageUpdated', { detail: { productId: product.id }}));
+      
       toast.success("Product image updated everywhere!", {
         description: "The image will appear in all places across the website."
       });

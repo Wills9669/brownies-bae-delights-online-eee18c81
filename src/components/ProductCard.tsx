@@ -39,6 +39,7 @@ const ProductCard = ({
         if (savedImage) {
           setCurrentImage(savedImage);
           setImageUpdated(true);
+          setImageError(false); // Reset error state if we have a valid image
         } else {
           setCurrentImage(image);
           setImageUpdated(false);
@@ -50,11 +51,19 @@ const ProductCard = ({
     
     updateCurrentImage();
     
-    // Listen for changes from other components
+    // Listen for storage events (from other tabs)
     window.addEventListener('storage', updateCurrentImage);
+    
+    // Listen for custom events (from same tab)
+    window.addEventListener('productImageUpdated', (e: any) => {
+      if (e.detail && e.detail.productId === id) {
+        updateCurrentImage();
+      }
+    });
     
     return () => {
       window.removeEventListener('storage', updateCurrentImage);
+      window.removeEventListener('productImageUpdated', updateCurrentImage);
     };
   }, [id, image]);
   
@@ -116,6 +125,11 @@ const ProductCard = ({
         // Dispatch storage event to update other open tabs/windows
         window.dispatchEvent(new Event('storage'));
         
+        // Dispatch custom event for components in the same tab
+        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+          detail: { productId: id }
+        }));
+        
         toast.success("Image updated everywhere!", {
           description: "The image will appear in all places across the website."
         });
@@ -132,7 +146,15 @@ const ProductCard = ({
       localStorage.removeItem(`product-image-${id}`);
       setCurrentImage(image);
       setImageUpdated(false);
+      
+      // Dispatch storage event to update other components
       window.dispatchEvent(new Event('storage'));
+      
+      // Dispatch custom event for same tab components
+      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+        detail: { productId: id }
+      }));
+      
       toast.success("Original image restored!");
     } catch (error) {
       console.error('Error clearing localStorage:', error);

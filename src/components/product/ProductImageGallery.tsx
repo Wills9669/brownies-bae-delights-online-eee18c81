@@ -32,6 +32,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         const savedImage = localStorage.getItem(`product-image-${productId}`);
         if (savedImage) {
           setActiveImage(savedImage);
+          setImageError(false); // Reset error state if we have a valid image
           setImageUpdated(true);
         } else {
           setActiveImage(mainImage);
@@ -44,11 +45,19 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     
     updateActiveImage();
     
-    // Listen for changes from other components
+    // Listen for storage events from other tabs
     window.addEventListener('storage', updateActiveImage);
+    
+    // Listen for custom events from same tab
+    window.addEventListener('productImageUpdated', (e: any) => {
+      if (e.detail && e.detail.productId === productId) {
+        updateActiveImage();
+      }
+    });
     
     return () => {
       window.removeEventListener('storage', updateActiveImage);
+      window.removeEventListener('productImageUpdated', updateActiveImage);
     };
   }, [productId, mainImage]);
 
@@ -78,8 +87,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           onImageChange(newImageUrl);
         }
         
-        // Dispatch storage event to update other components
+        // Dispatch storage event to update other tabs
         window.dispatchEvent(new Event('storage'));
+        
+        // Dispatch custom event for same-tab components
+        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+          detail: { productId: productId }
+        }));
         
         toast.success("Image updated successfully everywhere!");
       } catch (error) {
@@ -101,8 +115,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         onImageChange(mainImage);
       }
       
-      // Dispatch storage event
+      // Dispatch storage event for other tabs
       window.dispatchEvent(new Event('storage'));
+      
+      // Dispatch custom event for same-tab components
+      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+        detail: { productId: productId }
+      }));
       
       toast.success("Original image restored!");
     } catch (error) {
