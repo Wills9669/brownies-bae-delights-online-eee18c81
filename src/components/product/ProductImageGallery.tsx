@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { ImageOff, Edit, CheckCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
 
@@ -27,12 +27,30 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   
   // Load saved image from localStorage on component mount
   useEffect(() => {
-    const savedImage = localStorage.getItem(`product-image-${productId}`);
-    if (savedImage) {
-      setActiveImage(savedImage);
-      setImageUpdated(true);
-    }
-  }, [productId]);
+    const updateActiveImage = () => {
+      try {
+        const savedImage = localStorage.getItem(`product-image-${productId}`);
+        if (savedImage) {
+          setActiveImage(savedImage);
+          setImageUpdated(true);
+        } else {
+          setActiveImage(mainImage);
+          setImageUpdated(false);
+        }
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
+      }
+    };
+    
+    updateActiveImage();
+    
+    // Listen for changes from other components
+    window.addEventListener('storage', updateActiveImage);
+    
+    return () => {
+      window.removeEventListener('storage', updateActiveImage);
+    };
+  }, [productId, mainImage]);
 
   // Update active image if currentImage prop changes
   useEffect(() => {
@@ -48,20 +66,48 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
 
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
-      // Save to localStorage for persistence across page reloads
-      localStorage.setItem(`product-image-${productId}`, newImageUrl);
-      setActiveImage(newImageUrl);
-      setImageError(false);
-      setImageUpdated(true);
+      try {
+        // Save to localStorage for persistence across page reloads
+        localStorage.setItem(`product-image-${productId}`, newImageUrl);
+        setActiveImage(newImageUrl);
+        setImageError(false);
+        setImageUpdated(true);
+        
+        // Notify parent component about the image change
+        if (onImageChange) {
+          onImageChange(newImageUrl);
+        }
+        
+        // Dispatch storage event to update other components
+        window.dispatchEvent(new Event('storage'));
+        
+        toast.success("Image updated successfully everywhere!");
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+        toast.error("Failed to save image. Try using a smaller image.");
+      }
+    }
+    setIsEditDialogOpen(false);
+  };
+  
+  const clearStorage = () => {
+    try {
+      localStorage.removeItem(`product-image-${productId}`);
+      setActiveImage(mainImage);
+      setImageUpdated(false);
       
       // Notify parent component about the image change
       if (onImageChange) {
-        onImageChange(newImageUrl);
+        onImageChange(mainImage);
       }
       
-      toast.success("Image updated successfully everywhere!");
+      // Dispatch storage event
+      window.dispatchEvent(new Event('storage'));
+      
+      toast.success("Original image restored!");
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
     }
-    setIsEditDialogOpen(false);
   };
   
   return (
@@ -106,14 +152,18 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       <div className="grid grid-cols-4 gap-2">
         <button 
           onClick={() => {
-            // Use saved image if available, otherwise use original
-            const savedImage = localStorage.getItem(`product-image-${productId}`);
-            const imageToUse = savedImage || mainImage;
-            setActiveImage(imageToUse);
-            
-            // Notify parent component about the image change
-            if (onImageChange) {
-              onImageChange(imageToUse);
+            try {
+              // Use saved image if available, otherwise use original
+              const savedImage = localStorage.getItem(`product-image-${productId}`);
+              const imageToUse = savedImage || mainImage;
+              setActiveImage(imageToUse);
+              
+              // Notify parent component about the image change
+              if (onImageChange) {
+                onImageChange(imageToUse);
+              }
+            } catch (error) {
+              console.error('Error accessing localStorage:', error);
             }
           }}
           className={`h-20 rounded-md overflow-hidden bg-gray-50 transition-all hover:opacity-100 ${
@@ -121,7 +171,14 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
           }`}
         >
           <img 
-            src={localStorage.getItem(`product-image-${productId}`) || mainImage} 
+            src={(() => {
+              try {
+                return localStorage.getItem(`product-image-${productId}`) || mainImage;
+              } catch (error) {
+                console.error('Error accessing localStorage:', error);
+                return mainImage;
+              }
+            })()}
             alt={productName} 
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -129,15 +186,35 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
             }}
           />
         </button>
+        {imageUpdated && (
+          <button 
+            onClick={clearStorage}
+            className="h-20 rounded-md overflow-hidden bg-gray-50 flex items-center justify-center border border-dashed border-gray-300 hover:border-red-500"
+            title="Restore original image"
+          >
+            <div className="text-xs text-center p-2">Restore Original</div>
+          </button>
+        )}
       </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogTitle>Edit Image for {productName}</DialogTitle>
+          <DialogDescription>
+            Upload a new image for this product. The image will be optimized automatically.
+          </DialogDescription>
           <ImageUploader 
             onImageUploaded={handleImageUploaded}
             currentImage={activeImage}
           />
+          {imageUpdated && (
+            <button 
+              onClick={clearStorage}
+              className="w-full mt-2 p-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              Restore Original Image
+            </button>
+          )}
         </DialogContent>
       </Dialog>
     </div>

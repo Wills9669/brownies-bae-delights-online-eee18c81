@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Image as ImageIcon, X, Edit2, Save, Camera } from 'lucide-react';
+import { Upload, Image as ImageIcon, X, Edit2, Save, Camera, AlertCircle } from 'lucide-react';
 
 interface ImageUploaderProps {
   onImageUploaded: (imageUrl: string) => void;
@@ -20,6 +20,71 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   useEffect(() => {
     setPreviewImage(currentImage);
   }, [currentImage]);
+
+  // Function to resize the image to reduce storage size
+  const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          // Target dimensions - this will reduce file size significantly
+          const maxWidth = 800;
+          const maxHeight = 800;
+          
+          // Calculate dimensions while maintaining aspect ratio
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round(height * (maxWidth / width));
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round(width * (maxHeight / height));
+              height = maxHeight;
+            }
+          }
+          
+          // Create a canvas to resize the image
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          
+          // Draw the image on the canvas
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'));
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Get the resized image as a data URL with reduced quality
+          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          resolve(resizedDataUrl);
+        };
+        
+        img.onerror = () => {
+          reject(new Error('Failed to load image'));
+        };
+        
+        if (event.target?.result) {
+          img.src = event.target.result as string;
+        } else {
+          reject(new Error('Failed to read file'));
+        }
+      };
+      
+      reader.onerror = () => {
+        reject(new Error('Failed to read file'));
+      };
+      
+      reader.readAsDataURL(file);
+    });
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,21 +110,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     setIsUploading(true);
     
     try {
-      // Create a dataURL that will persist across page reloads when saved to localStorage
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const dataUrl = event.target.result as string;
-          setPreviewImage(dataUrl);
-          setHasChanges(true);
-        }
-      };
-      reader.readAsDataURL(file);
+      // Resize the image to optimize storage
+      const optimizedImageDataUrl = await resizeImage(file);
+      setPreviewImage(optimizedImageDataUrl);
+      setHasChanges(true);
+      setIsUploading(false);
     } catch (error) {
       console.error('Upload error:', error);
-      setError('Failed to upload image. Please try again.');
-      toast.error("Failed to upload image. Please try again.");
-    } finally {
+      setError('Failed to process image. Please try again.');
+      toast.error("Failed to process image. Please try again.");
       setIsUploading(false);
     }
   };
@@ -70,8 +129,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   };
 
   const saveChanges = () => {
-    onImageUploaded(previewImage || '');
-    setHasChanges(false);
+    try {
+      onImageUploaded(previewImage || '');
+      setHasChanges(false);
+      toast.success('Image saved successfully!');
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast.error('Failed to save image. Storage quota may be exceeded.');
+      setError('Failed to save image. Try using a smaller image or clearing some existing images.');
+    }
   };
 
   const handleTakePicture = () => {
@@ -150,11 +216,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       )}
       
       {error && (
-        <p className="text-red-500 text-xs">{error}</p>
+        <div className="flex items-center gap-2 text-red-500 text-xs">
+          <AlertCircle size={12} />
+          <p>{error}</p>
+        </div>
       )}
       
       {isUploading && (
-        <p className="text-blue-500 text-xs">Uploading image...</p>
+        <p className="text-blue-500 text-xs">Processing image...</p>
       )}
 
       {hasChanges && (
@@ -168,7 +237,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       )}
       
       <p className="text-xs text-gray-500 text-center max-w-[200px]">
-        Upload high-quality images up to 10MB (JPEG, PNG, GIF, WEBP, HEIC)
+        Images will be optimized automatically to save storage space
       </p>
     </div>
   );

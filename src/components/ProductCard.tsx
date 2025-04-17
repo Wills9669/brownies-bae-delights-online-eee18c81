@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart, ImageOff, Edit, CheckCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
 
@@ -31,16 +31,20 @@ const ProductCard = ({
   const [currentImage, setCurrentImage] = useState(image);
   const [imageUpdated, setImageUpdated] = useState(false);
 
-  // Load saved image from localStorage on component mount and when props change
+  // Load saved image from localStorage on component mount
   useEffect(() => {
     const updateCurrentImage = () => {
-      const savedImage = localStorage.getItem(`product-image-${id}`);
-      if (savedImage) {
-        setCurrentImage(savedImage);
-        setImageUpdated(true);
-      } else {
-        setCurrentImage(image);
-        setImageUpdated(false);
+      try {
+        const savedImage = localStorage.getItem(`product-image-${id}`);
+        if (savedImage) {
+          setCurrentImage(savedImage);
+          setImageUpdated(true);
+        } else {
+          setCurrentImage(image);
+          setImageUpdated(false);
+        }
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
       }
     };
     
@@ -76,7 +80,13 @@ const ProductCard = ({
   
   const handleAddToCart = () => {
     // Always use the latest image from localStorage
-    const latestImage = localStorage.getItem(`product-image-${id}`) || currentImage;
+    let latestImage;
+    try {
+      latestImage = localStorage.getItem(`product-image-${id}`) || currentImage;
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      latestImage = currentImage;
+    }
     
     addToCart({
       id,
@@ -96,20 +106,37 @@ const ProductCard = ({
 
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
-      // Save to localStorage for persistence across page reloads and sharing with other components
-      localStorage.setItem(`product-image-${id}`, newImageUrl);
-      setCurrentImage(newImageUrl);
-      setImageError(false);
-      setImageUpdated(true);
-      
-      // Dispatch storage event to update other open tabs/windows
-      window.dispatchEvent(new Event('storage'));
-      
-      toast.success("Image updated everywhere!", {
-        description: "The image will appear in all places across the website."
-      });
+      try {
+        // Save to localStorage for persistence across page reloads and sharing with other components
+        localStorage.setItem(`product-image-${id}`, newImageUrl);
+        setCurrentImage(newImageUrl);
+        setImageError(false);
+        setImageUpdated(true);
+        
+        // Dispatch storage event to update other open tabs/windows
+        window.dispatchEvent(new Event('storage'));
+        
+        toast.success("Image updated everywhere!", {
+          description: "The image will appear in all places across the website."
+        });
+      } catch (error) {
+        console.error('Error saving to localStorage:', error);
+        toast.error("Failed to save image. Try using a smaller image.");
+      }
     }
     setIsEditDialogOpen(false);
+  };
+
+  const clearStorage = () => {
+    try {
+      localStorage.removeItem(`product-image-${id}`);
+      setCurrentImage(image);
+      setImageUpdated(false);
+      window.dispatchEvent(new Event('storage'));
+      toast.success("Original image restored!");
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
   };
 
   return (
@@ -172,10 +199,22 @@ const ProductCard = ({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogTitle>Edit Image for {name}</DialogTitle>
+          <DialogDescription>
+            Upload a new image for this product. The image will be optimized automatically.
+          </DialogDescription>
           <ImageUploader 
             onImageUploaded={handleImageUploaded}
             currentImage={currentImage}
           />
+          {imageUpdated && (
+            <Button 
+              variant="outline" 
+              className="mt-2" 
+              onClick={clearStorage}
+            >
+              Restore Original Image
+            </Button>
+          )}
         </DialogContent>
       </Dialog>
     </div>

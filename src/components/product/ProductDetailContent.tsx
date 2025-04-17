@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
@@ -32,16 +33,21 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   getSizeLabel
 }) => {
   const [showQrPayment, setShowQrPayment] = useState(false);
-  const [productImage, setProductImage] = useState<string>(
-    localStorage.getItem(`product-image-${product.id}`) || product.image
-  );
+  const [productImage, setProductImage] = useState<string>(product.image);
   const { addToCart } = useCart();
   
   useEffect(() => {
     const updateProductImage = () => {
-      const savedImage = localStorage.getItem(`product-image-${product.id}`);
-      if (savedImage) {
-        setProductImage(savedImage);
+      try {
+        const savedImage = localStorage.getItem(`product-image-${product.id}`);
+        if (savedImage) {
+          setProductImage(savedImage);
+        } else {
+          setProductImage(product.image);
+        }
+      } catch (error) {
+        console.error('Error accessing localStorage:', error);
+        setProductImage(product.image);
       }
     };
 
@@ -52,10 +58,16 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
     return () => {
       window.removeEventListener('storage', updateProductImage);
     };
-  }, [product.id]);
+  }, [product.id, product.image]);
   
   const handleAddToCart = () => {
-    const currentImage = localStorage.getItem(`product-image-${product.id}`) || productImage;
+    let currentImage;
+    try {
+      currentImage = localStorage.getItem(`product-image-${product.id}`) || productImage;
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      currentImage = productImage;
+    }
     
     addToCart({
       id: product.id,
@@ -80,13 +92,16 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   };
   
   const handleImageChange = (newImage: string) => {
-    setProductImage(newImage);
-    localStorage.setItem(`product-image-${product.id}`, newImage);
-    window.dispatchEvent(new Event('storage'));
-    
-    toast.success("Product image updated everywhere!", {
-      description: "The image will appear in all places across the website."
-    });
+    try {
+      setProductImage(newImage);
+      // Storage event already dispatched in the ProductImageGallery component
+      toast.success("Product image updated everywhere!", {
+        description: "The image will appear in all places across the website."
+      });
+    } catch (error) {
+      console.error('Error updating product image:', error);
+      toast.error("Failed to update product image.");
+    }
   };
   
   if (showQrPayment) {
