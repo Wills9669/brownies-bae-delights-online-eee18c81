@@ -15,7 +15,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Update preview if currentImage changes (e.g. from localStorage)
+  // Update preview if currentImage changes
   useEffect(() => {
     setPreviewImage(currentImage);
   }, [currentImage]);
@@ -44,13 +44,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     setIsUploading(true);
     
     try {
-      // Create a persistent blob URL that will survive page reloads
+      // Create a dataURL that will persist across page reloads when saved to localStorage
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
           const dataUrl = event.target.result as string;
           setPreviewImage(dataUrl);
-          // Pass data URL back to parent component to store in localStorage
+          // Automatically save the image
           onImageUploaded(dataUrl);
         }
       };
@@ -131,18 +131,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       <p className="text-xs text-gray-500 text-center max-w-[200px]">
         Upload high-quality images up to 10MB (JPEG, PNG, GIF, WEBP, HEIC)
       </p>
-      
-      <Button 
-        onClick={() => {
-          if (previewImage) {
-            onImageUploaded(previewImage);
-          }
-        }}
-        disabled={isUploading || !previewImage}
-        className="w-full mt-2"
-      >
-        Save Changes
-      </Button>
     </div>
   );
 };

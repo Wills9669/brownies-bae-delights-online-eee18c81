@@ -33,21 +33,23 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   getSizeLabel
 }) => {
   const [showQrPayment, setShowQrPayment] = useState(false);
+  const [productImage, setProductImage] = useState<string>(
+    localStorage.getItem(`product-image-${product.id}`) || product.image
+  );
   const { addToCart } = useCart();
   
   const handleAddToCart = () => {
-    // Get the updated image from localStorage if it exists
-    const savedImage = localStorage.getItem(`product-image-${product.id}`);
-    
     addToCart({
       id: product.id,
       name: product.name,
       price: parseFloat(getPrice()),
       quantity: quantity,
-      image: savedImage || product.image,
+      image: productImage,
       category: category || 'other',
       size: getSizeLabel()
     });
+    
+    toast.success(`${product.name} added to cart!`);
   };
   
   const handleBuyNow = () => {
@@ -59,10 +61,17 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
     toast.success("Payment successful! Your order has been placed.");
   };
   
+  const handleImageChange = (newImage: string) => {
+    setProductImage(newImage);
+    // Save to localStorage for site-wide use
+    localStorage.setItem(`product-image-${product.id}`, newImage);
+    toast.success("Product image updated everywhere!");
+  };
+  
   if (showQrPayment) {
     return (
       <QrPayment 
-        product={product}
+        product={{...product, image: productImage}}
         quantity={quantity}
         getSizeLabel={getSizeLabel}
         getPrice={getPrice}
@@ -80,12 +89,14 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
           mainImage={product.image} 
           productName={product.name}
           productId={product.id}
+          onImageChange={handleImageChange}
+          currentImage={productImage}
         />
         
         {/* Product Info */}
         <div className="p-6 md:p-8">
           <ProductInfo 
-            product={product} 
+            product={{...product, image: productImage}} 
             getPrice={getPrice} 
             getSizeLabel={getSizeLabel} 
           />

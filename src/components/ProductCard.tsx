@@ -30,13 +30,15 @@ const ProductCard = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
 
-  // Load saved image from localStorage on component mount
+  // Load saved image from localStorage on component mount and when props change
   useEffect(() => {
     const savedImage = localStorage.getItem(`product-image-${id}`);
     if (savedImage) {
       setCurrentImage(savedImage);
+    } else {
+      setCurrentImage(image); // Fall back to prop if no saved image
     }
-  }, [id]);
+  }, [id, image]);
   
   // Ensure category is one of the valid values for routing purposes
   const getCategoryForRouting = (category: string) => {
@@ -67,6 +69,8 @@ const ProductCard = ({
       image: currentImage,
       category: safeCategory
     });
+    
+    toast.success(`${name} added to cart!`);
   };
   
   const handleImageError = () => {
@@ -75,11 +79,11 @@ const ProductCard = ({
 
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
-      // Save to localStorage for persistence across page reloads
+      // Save to localStorage for persistence across page reloads and sharing with other components
       localStorage.setItem(`product-image-${id}`, newImageUrl);
       setCurrentImage(newImageUrl);
       setImageError(false);
-      toast.success("Image updated successfully!");
+      toast.success("Image updated everywhere!");
     }
     setIsEditDialogOpen(false);
   };

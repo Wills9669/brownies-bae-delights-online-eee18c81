@@ -8,11 +8,19 @@ import { toast } from 'sonner';
 interface ProductImageGalleryProps {
   mainImage: string;
   productName: string;
-  productId: string; // Added productId to uniquely identify the product
+  productId: string;
+  onImageChange?: (newImage: string) => void;
+  currentImage?: string;
 }
 
-const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, productName, productId }) => {
-  const [activeImage, setActiveImage] = useState(mainImage);
+const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ 
+  mainImage, 
+  productName, 
+  productId,
+  onImageChange,
+  currentImage
+}) => {
+  const [activeImage, setActiveImage] = useState(currentImage || mainImage);
   const [imageError, setImageError] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   
@@ -23,6 +31,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
       setActiveImage(savedImage);
     }
   }, [productId]);
+
+  // Update active image if currentImage prop changes
+  useEffect(() => {
+    if (currentImage) {
+      setActiveImage(currentImage);
+    }
+  }, [currentImage]);
   
   const handleImageError = () => {
     setImageError(true);
@@ -35,6 +50,12 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
       localStorage.setItem(`product-image-${productId}`, newImageUrl);
       setActiveImage(newImageUrl);
       setImageError(false);
+      
+      // Notify parent component about the image change
+      if (onImageChange) {
+        onImageChange(newImageUrl);
+      }
+      
       toast.success("Image updated successfully!");
     }
     setIsEditDialogOpen(false);
@@ -79,7 +100,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({ mainImage, pr
           onClick={() => {
             // Use saved image if available, otherwise use original
             const savedImage = localStorage.getItem(`product-image-${productId}`);
-            setActiveImage(savedImage || mainImage);
+            const imageToUse = savedImage || mainImage;
+            setActiveImage(imageToUse);
+            
+            // Notify parent component about the image change
+            if (onImageChange) {
+              onImageChange(imageToUse);
+            }
           }}
           className={`h-20 rounded-md overflow-hidden bg-gray-50 transition-all hover:opacity-100 ${
             activeImage === mainImage ? 'ring-2 ring-pink-dark' : 'opacity-70'
