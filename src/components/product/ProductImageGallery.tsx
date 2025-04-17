@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { ImageOff, Edit } from 'lucide-react';
+import { ImageOff, Edit, CheckCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
@@ -23,12 +23,14 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const [activeImage, setActiveImage] = useState(currentImage || mainImage);
   const [imageError, setImageError] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [imageUpdated, setImageUpdated] = useState(false);
   
   // Load saved image from localStorage on component mount
   useEffect(() => {
     const savedImage = localStorage.getItem(`product-image-${productId}`);
     if (savedImage) {
       setActiveImage(savedImage);
+      setImageUpdated(true);
     }
   }, [productId]);
 
@@ -50,13 +52,14 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       localStorage.setItem(`product-image-${productId}`, newImageUrl);
       setActiveImage(newImageUrl);
       setImageError(false);
+      setImageUpdated(true);
       
       // Notify parent component about the image change
       if (onImageChange) {
         onImageChange(newImageUrl);
       }
       
-      toast.success("Image updated successfully!");
+      toast.success("Image updated successfully everywhere!");
     }
     setIsEditDialogOpen(false);
   };
@@ -81,6 +84,11 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
                 <Edit size={20} className="text-gray-800" />
               </button>
             </div>
+            {imageUpdated && (
+              <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                <CheckCircle size={20} className="text-green-500" />
+              </div>
+            )}
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">

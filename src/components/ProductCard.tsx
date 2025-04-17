@@ -1,7 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ImageOff, Edit } from 'lucide-react';
+import { ShoppingCart, ImageOff, Edit, CheckCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -29,15 +29,29 @@ const ProductCard = ({
   const [imageError, setImageError] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(image);
+  const [imageUpdated, setImageUpdated] = useState(false);
 
   // Load saved image from localStorage on component mount and when props change
   useEffect(() => {
-    const savedImage = localStorage.getItem(`product-image-${id}`);
-    if (savedImage) {
-      setCurrentImage(savedImage);
-    } else {
-      setCurrentImage(image); // Fall back to prop if no saved image
-    }
+    const updateCurrentImage = () => {
+      const savedImage = localStorage.getItem(`product-image-${id}`);
+      if (savedImage) {
+        setCurrentImage(savedImage);
+        setImageUpdated(true);
+      } else {
+        setCurrentImage(image);
+        setImageUpdated(false);
+      }
+    };
+    
+    updateCurrentImage();
+    
+    // Listen for changes from other components
+    window.addEventListener('storage', updateCurrentImage);
+    
+    return () => {
+      window.removeEventListener('storage', updateCurrentImage);
+    };
   }, [id, image]);
   
   // Ensure category is one of the valid values for routing purposes
@@ -61,12 +75,15 @@ const ProductCard = ({
   const safeCategory = getCategoryForRouting(category);
   
   const handleAddToCart = () => {
+    // Always use the latest image from localStorage
+    const latestImage = localStorage.getItem(`product-image-${id}`) || currentImage;
+    
     addToCart({
       id,
       name,
       price: parseFloat(price),
       quantity: 1,
-      image: currentImage,
+      image: latestImage,
       category: safeCategory
     });
     
@@ -83,7 +100,14 @@ const ProductCard = ({
       localStorage.setItem(`product-image-${id}`, newImageUrl);
       setCurrentImage(newImageUrl);
       setImageError(false);
-      toast.success("Image updated everywhere!");
+      setImageUpdated(true);
+      
+      // Dispatch storage event to update other open tabs/windows
+      window.dispatchEvent(new Event('storage'));
+      
+      toast.success("Image updated everywhere!", {
+        description: "The image will appear in all places across the website."
+      });
     }
     setIsEditDialogOpen(false);
   };
@@ -113,6 +137,11 @@ const ProductCard = ({
                 <Edit className="text-gray-800" size={20} />
               </button>
             </div>
+            {imageUpdated && (
+              <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                <CheckCircle size={16} className="text-green-500" />
+              </div>
+            )}
           </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">

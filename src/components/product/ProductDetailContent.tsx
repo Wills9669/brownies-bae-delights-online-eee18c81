@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
 import ProductImageGallery from '@/components/product/ProductImageGallery';
@@ -38,13 +37,32 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   );
   const { addToCart } = useCart();
   
+  useEffect(() => {
+    const updateProductImage = () => {
+      const savedImage = localStorage.getItem(`product-image-${product.id}`);
+      if (savedImage) {
+        setProductImage(savedImage);
+      }
+    };
+
+    updateProductImage();
+    
+    window.addEventListener('storage', updateProductImage);
+    
+    return () => {
+      window.removeEventListener('storage', updateProductImage);
+    };
+  }, [product.id]);
+  
   const handleAddToCart = () => {
+    const currentImage = localStorage.getItem(`product-image-${product.id}`) || productImage;
+    
     addToCart({
       id: product.id,
       name: product.name,
       price: parseFloat(getPrice()),
       quantity: quantity,
-      image: productImage,
+      image: currentImage,
       category: category || 'other',
       size: getSizeLabel()
     });
@@ -63,9 +81,12 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   
   const handleImageChange = (newImage: string) => {
     setProductImage(newImage);
-    // Save to localStorage for site-wide use
     localStorage.setItem(`product-image-${product.id}`, newImage);
-    toast.success("Product image updated everywhere!");
+    window.dispatchEvent(new Event('storage'));
+    
+    toast.success("Product image updated everywhere!", {
+      description: "The image will appear in all places across the website."
+    });
   };
   
   if (showQrPayment) {
@@ -84,7 +105,6 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="grid grid-cols-1 md:grid-cols-2">
-        {/* Product Images - Pass the product ID for localStorage persistence */}
         <ProductImageGallery 
           mainImage={product.image} 
           productName={product.name}
@@ -93,7 +113,6 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
           currentImage={productImage}
         />
         
-        {/* Product Info */}
         <div className="p-6 md:p-8">
           <ProductInfo 
             product={{...product, image: productImage}} 
@@ -101,7 +120,6 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
             getSizeLabel={getSizeLabel} 
           />
           
-          {/* Size Selection */}
           <ProductSizeSelector 
             category={category}
             product={product}
@@ -109,14 +127,12 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
             setSelectedSize={setSelectedSize}
           />
           
-          {/* Quantity */}
           <QuantitySelector 
             quantity={quantity}
             incrementQuantity={incrementQuantity}
             decrementQuantity={decrementQuantity}
           />
           
-          {/* Actions */}
           <ProductActions 
             handleAddToCart={handleAddToCart}
             handleBuyNow={handleBuyNow}

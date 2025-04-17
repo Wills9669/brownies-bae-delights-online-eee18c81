@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Upload, Image as ImageIcon, X, Edit2 } from 'lucide-react';
+import { Upload, Image as ImageIcon, X, Edit2, Save, Camera } from 'lucide-react';
 
 interface ImageUploaderProps {
   onImageUploaded: (imageUrl: string) => void;
@@ -14,6 +14,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   const [previewImage, setPreviewImage] = useState<string | undefined>(currentImage);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
 
   // Update preview if currentImage changes
   useEffect(() => {
@@ -50,8 +51,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
         if (event.target?.result) {
           const dataUrl = event.target.result as string;
           setPreviewImage(dataUrl);
-          // Automatically save the image
-          onImageUploaded(dataUrl);
+          setHasChanges(true);
         }
       };
       reader.readAsDataURL(file);
@@ -66,10 +66,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
 
   const removeImage = () => {
     setPreviewImage(undefined);
-    onImageUploaded('');
-    toast.success("Image removed successfully!");
+    setHasChanges(true);
+  };
+
+  const saveChanges = () => {
+    onImageUploaded(previewImage || '');
+    setHasChanges(false);
+  };
+
+  const handleTakePicture = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.setAttribute('capture', 'environment');
+      fileInputRef.current.click();
     }
   };
 
@@ -84,9 +92,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
               className="w-full h-full object-cover transition-opacity group-hover:opacity-75"
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <label htmlFor="image-upload-edit" className="cursor-pointer">
-                <Edit2 className="text-white" size={24} />
-              </label>
+              <div className="flex gap-2">
+                <label htmlFor="image-upload-edit" className="cursor-pointer bg-white p-2 rounded-full">
+                  <Edit2 className="text-gray-800" size={20} />
+                </label>
+                <button
+                  onClick={handleTakePicture}
+                  className="bg-white p-2 rounded-full"
+                  title="Take picture"
+                >
+                  <Camera className="text-gray-800" size={20} />
+                </button>
+              </div>
               <input
                 id="image-upload-edit"
                 type="file"
@@ -109,6 +126,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
         <div className="mb-4 h-48 w-48 flex flex-col items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-md hover:border-pink-dark transition-colors cursor-pointer relative">
           <ImageIcon className="text-gray-400 mb-2" size={48} />
           <span className="text-sm text-gray-500">Click to upload image</span>
+          <div className="flex gap-2 mt-4">
+            <label htmlFor="image-upload" className="cursor-pointer bg-pink-dark text-white px-3 py-1 rounded-md text-sm hover:bg-pink-dark/90">
+              Upload
+            </label>
+            <button
+              onClick={handleTakePicture}
+              className="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
+              title="Take picture"
+            >
+              Camera
+            </button>
+          </div>
           <input
             id="image-upload"
             type="file"
@@ -126,6 +155,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       
       {isUploading && (
         <p className="text-blue-500 text-xs">Uploading image...</p>
+      )}
+
+      {hasChanges && (
+        <Button 
+          onClick={saveChanges} 
+          className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600"
+        >
+          <Save size={16} />
+          Save Changes
+        </Button>
       )}
       
       <p className="text-xs text-gray-500 text-center max-w-[200px]">
