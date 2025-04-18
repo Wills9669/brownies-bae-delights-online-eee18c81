@@ -26,7 +26,7 @@ const AboutPage = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <img src="/lovable-uploads/1c54712c-519e-4052-8595-0bae4294a786.png" alt="Chocolate cake" className="rounded-lg shadow-md h-64 w-full object-cover" />
+              <img alt="Chocolate cake" className="rounded-lg shadow-md h-64 w-full object-cover" src="/lovable-uploads/6dd8f1e0-e05b-4792-844b-fd370942bdbf.jpg" />
               <img src="/lovable-uploads/3df4beea-c1cf-4704-8484-a6feb0953155.png" alt="Chocolate brownies" className="rounded-lg shadow-md h-64 w-full object-cover" />
             </div>
             
