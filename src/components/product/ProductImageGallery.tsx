@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { ImageOff, Edit, CheckCircle } from 'lucide-react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import ImageUploader from '@/components/ImageUploader';
+import ProductImageEditor from './ProductImageEditor';
 import { toast } from 'sonner';
 
 interface ProductImageGalleryProps {
@@ -25,7 +24,6 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [imageUpdated, setImageUpdated] = useState(false);
   
-  // Load and sync image from localStorage or props
   useEffect(() => {
     const syncImage = () => {
       try {
@@ -49,7 +47,6 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     
     syncImage();
     
-    // Event listeners for image updates
     const handleStorageEvent = () => syncImage();
     const handleCustomEvent = (e: any) => {
       if (e.detail?.productId === productId) {
@@ -71,35 +68,25 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
     console.error(`Failed to load image for ${productName}`);
   };
 
-  const handleImageUploaded = (newImageUrl: string) => {
-    if (newImageUrl) {
-      try {
-        // Save to localStorage
-        localStorage.setItem(`product-image-${productId}`, newImageUrl);
-        
-        // Update local state
-        setActiveImage(newImageUrl);
-        setImageError(false);
-        setImageUpdated(true);
-        
-        // Notify parent component
-        if (onImageChange) {
-          onImageChange(newImageUrl);
-        }
-        
-        // Dispatch events for other components
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-          detail: { productId: productId }
-        }));
-        
-        toast.success("Image updated successfully everywhere!");
-      } catch (error) {
-        console.error('Error saving image:', error);
-        toast.error("Failed to save image. Please try using a smaller image.");
+  const handleImageUpdate = (newImageUrl: string) => {
+    try {
+      localStorage.setItem(`product-image-${productId}`, newImageUrl);
+      setActiveImage(newImageUrl);
+      setImageError(false);
+      setImageUpdated(true);
+      
+      if (onImageChange) {
+        onImageChange(newImageUrl);
       }
+      
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+        detail: { productId: productId }
+      }));
+    } catch (error) {
+      console.error('Error saving image:', error);
+      toast.error("Failed to save image. Please try using a smaller image.");
     }
-    setIsEditDialogOpen(false);
   };
   
   const clearStorage = () => {
@@ -108,12 +95,10 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       setActiveImage(mainImage);
       setImageUpdated(false);
       
-      // Notify parent
       if (onImageChange) {
         onImageChange(mainImage);
       }
       
-      // Dispatch events
       window.dispatchEvent(new Event('storage'));
       window.dispatchEvent(new CustomEvent('productImageUpdated', { 
         detail: { productId: productId }
@@ -211,26 +196,13 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         )}
       </div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogTitle>Edit Image for {productName}</DialogTitle>
-          <DialogDescription>
-            Upload a new image for this product. The image will be optimized automatically.
-          </DialogDescription>
-          <ImageUploader 
-            onImageUploaded={handleImageUploaded}
-            currentImage={activeImage}
-          />
-          {imageUpdated && (
-            <button 
-              onClick={clearStorage}
-              className="w-full mt-2 p-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              Restore Original Image
-            </button>
-          )}
-        </DialogContent>
-      </Dialog>
+      <ProductImageEditor
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onImageUpdate={handleImageUpdate}
+        productName={productName}
+        currentImage={activeImage}
+      />
     </div>
   );
 };
