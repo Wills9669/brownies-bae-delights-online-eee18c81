@@ -25,48 +25,46 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [imageUpdated, setImageUpdated] = useState(false);
   
-  // Load saved image from localStorage on component mount
+  // Load and sync image from localStorage or props
   useEffect(() => {
-    const updateActiveImage = () => {
+    const syncImage = () => {
       try {
         const savedImage = localStorage.getItem(`product-image-${productId}`);
         if (savedImage) {
           setActiveImage(savedImage);
-          setImageError(false); // Reset error state if we have a valid image
+          setImageError(false);
           setImageUpdated(true);
+        } else if (currentImage) {
+          setActiveImage(currentImage);
+          setImageUpdated(false);
         } else {
           setActiveImage(mainImage);
           setImageUpdated(false);
         }
       } catch (error) {
         console.error('Error accessing localStorage:', error);
+        setActiveImage(mainImage);
       }
     };
     
-    updateActiveImage();
+    syncImage();
     
-    // Listen for storage events from other tabs
-    window.addEventListener('storage', updateActiveImage);
-    
-    // Listen for custom events from same tab
-    window.addEventListener('productImageUpdated', (e: any) => {
-      if (e.detail && e.detail.productId === productId) {
-        updateActiveImage();
+    // Event listeners for image updates
+    const handleStorageEvent = () => syncImage();
+    const handleCustomEvent = (e: any) => {
+      if (e.detail?.productId === productId) {
+        syncImage();
       }
-    });
+    };
+    
+    window.addEventListener('storage', handleStorageEvent);
+    window.addEventListener('productImageUpdated', handleCustomEvent);
     
     return () => {
-      window.removeEventListener('storage', updateActiveImage);
-      window.removeEventListener('productImageUpdated', updateActiveImage);
+      window.removeEventListener('storage', handleStorageEvent);
+      window.removeEventListener('productImageUpdated', handleCustomEvent);
     };
-  }, [productId, mainImage]);
-
-  // Update active image if currentImage prop changes
-  useEffect(() => {
-    if (currentImage) {
-      setActiveImage(currentImage);
-    }
-  }, [currentImage]);
+  }, [productId, mainImage, currentImage]);
   
   const handleImageError = () => {
     setImageError(true);
@@ -76,29 +74,29 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
       try {
-        // Save to localStorage for persistence across page reloads
+        // Save to localStorage
         localStorage.setItem(`product-image-${productId}`, newImageUrl);
+        
+        // Update local state
         setActiveImage(newImageUrl);
         setImageError(false);
         setImageUpdated(true);
         
-        // Notify parent component about the image change
+        // Notify parent component
         if (onImageChange) {
           onImageChange(newImageUrl);
         }
         
-        // Dispatch storage event to update other tabs
+        // Dispatch events for other components
         window.dispatchEvent(new Event('storage'));
-        
-        // Dispatch custom event for same-tab components
         window.dispatchEvent(new CustomEvent('productImageUpdated', { 
           detail: { productId: productId }
         }));
         
         toast.success("Image updated successfully everywhere!");
       } catch (error) {
-        console.error('Error saving to localStorage:', error);
-        toast.error("Failed to save image. Try using a smaller image.");
+        console.error('Error saving image:', error);
+        toast.error("Failed to save image. Please try using a smaller image.");
       }
     }
     setIsEditDialogOpen(false);
@@ -110,22 +108,21 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
       setActiveImage(mainImage);
       setImageUpdated(false);
       
-      // Notify parent component about the image change
+      // Notify parent
       if (onImageChange) {
         onImageChange(mainImage);
       }
       
-      // Dispatch storage event for other tabs
+      // Dispatch events
       window.dispatchEvent(new Event('storage'));
-      
-      // Dispatch custom event for same-tab components
       window.dispatchEvent(new CustomEvent('productImageUpdated', { 
         detail: { productId: productId }
       }));
       
       toast.success("Original image restored!");
     } catch (error) {
-      console.error('Error clearing localStorage:', error);
+      console.error('Error clearing image:', error);
+      toast.error("Failed to restore original image.");
     }
   };
   
@@ -172,12 +169,10 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         <button 
           onClick={() => {
             try {
-              // Use saved image if available, otherwise use original
               const savedImage = localStorage.getItem(`product-image-${productId}`);
               const imageToUse = savedImage || mainImage;
               setActiveImage(imageToUse);
               
-              // Notify parent component about the image change
               if (onImageChange) {
                 onImageChange(imageToUse);
               }

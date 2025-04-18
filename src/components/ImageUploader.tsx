@@ -18,19 +18,21 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
 
   // Update preview if currentImage changes
   useEffect(() => {
-    setPreviewImage(currentImage);
+    if (currentImage) {
+      setPreviewImage(currentImage);
+    }
   }, [currentImage]);
 
-  // Function to resize the image to reduce storage size
+  // Resize and optimize image
   const resizeImage = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          // Target dimensions - this will reduce file size significantly
-          const maxWidth = 800;
-          const maxHeight = 800;
+          // Target dimensions - smaller for better performance
+          const maxWidth = 600;
+          const maxHeight = 600;
           
           // Calculate dimensions while maintaining aspect ratio
           let width = img.width;
@@ -63,7 +65,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
           ctx.drawImage(img, 0, 0, width, height);
           
           // Get the resized image as a data URL with reduced quality
-          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.6); // Lower quality for smaller size
           resolve(resizedDataUrl);
         };
         
@@ -92,33 +94,34 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
     
     setError(null);
     
-    // Validate file size (increased to 10MB for high-quality images)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Image size must be less than 10MB');
-      toast.error('Image size must be less than 10MB');
+    // Validate file size (5MB is usually enough for web images)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must be less than 5MB');
+      toast.error('Image size must be less than 5MB');
       return;
     }
     
-    // Validate file type with more formats
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      setError('Please upload a valid image (JPEG, PNG, GIF, WEBP, HEIC)');
-      toast.error('Please upload a valid image (JPEG, PNG, GIF, WEBP, HEIC)');
+      setError('Please upload a valid image (JPEG, PNG, GIF, WEBP)');
+      toast.error('Please upload a valid image (JPEG, PNG, GIF, WEBP)');
       return;
     }
     
     setIsUploading(true);
     
     try {
-      // Resize the image to optimize storage
+      // Resize and optimize the image
       const optimizedImageDataUrl = await resizeImage(file);
       setPreviewImage(optimizedImageDataUrl);
       setHasChanges(true);
       setIsUploading(false);
+      toast.success("Image loaded and optimized successfully.");
     } catch (error) {
       console.error('Upload error:', error);
-      setError('Failed to process image. Please try again.');
-      toast.error("Failed to process image. Please try again.");
+      setError('Failed to process image. Please try again with a different image.');
+      toast.error("Failed to process image. Please try again with a different image.");
       setIsUploading(false);
     }
   };
@@ -130,13 +133,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
 
   const saveChanges = () => {
     try {
-      onImageUploaded(previewImage || '');
-      setHasChanges(false);
-      toast.success('Image saved successfully!');
+      if (previewImage) {
+        onImageUploaded(previewImage);
+        setHasChanges(false);
+        toast.success('Image saved successfully!');
+      } else {
+        setError('No image to save');
+        toast.error('No image to save');
+      }
     } catch (error) {
       console.error('Error saving image:', error);
-      toast.error('Failed to save image. Storage quota may be exceeded.');
-      setError('Failed to save image. Try using a smaller image or clearing some existing images.');
+      toast.error('Failed to save image. Try using a smaller image.');
+      setError('Failed to save image. Try using a smaller image.');
     }
   };
 
@@ -226,7 +234,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
         <p className="text-blue-500 text-xs">Processing image...</p>
       )}
 
-      {hasChanges && (
+      {hasChanges && previewImage && (
         <Button 
           onClick={saveChanges} 
           className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600"
@@ -237,7 +245,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       )}
       
       <p className="text-xs text-gray-500 text-center max-w-[200px]">
-        Images will be optimized automatically to save storage space
+        Images will be automatically optimized to load faster
       </p>
     </div>
   );

@@ -36,8 +36,22 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   const [productImage, setProductImage] = useState<string>(product.image);
   const { addToCart } = useCart();
   
+  // Load saved image from localStorage on mount and when product changes
   useEffect(() => {
-    const updateProductImage = () => {
+    try {
+      const savedImage = localStorage.getItem(`product-image-${product.id}`);
+      if (savedImage) {
+        setProductImage(savedImage);
+      } else {
+        setProductImage(product.image);
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+      setProductImage(product.image);
+    }
+    
+    // Handle image updates from other components
+    const handleImageUpdate = () => {
       try {
         const savedImage = localStorage.getItem(`product-image-${product.id}`);
         if (savedImage) {
@@ -46,45 +60,39 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
           setProductImage(product.image);
         }
       } catch (error) {
-        console.error('Error accessing localStorage:', error);
-        setProductImage(product.image);
+        console.error('Error in storage event handler:', error);
       }
     };
-
-    updateProductImage();
     
-    // Listen for storage events from other tabs/components
-    window.addEventListener('storage', updateProductImage);
-    
-    // Also listen for custom events from the same tab
-    window.addEventListener('productImageUpdated', updateProductImage);
+    window.addEventListener('storage', handleImageUpdate);
+    window.addEventListener('productImageUpdated', handleImageUpdate);
     
     return () => {
-      window.removeEventListener('storage', updateProductImage);
-      window.removeEventListener('productImageUpdated', updateProductImage);
+      window.removeEventListener('storage', handleImageUpdate);
+      window.removeEventListener('productImageUpdated', handleImageUpdate);
     };
   }, [product.id, product.image]);
   
   const handleAddToCart = () => {
-    let currentImage;
     try {
-      currentImage = localStorage.getItem(`product-image-${product.id}`) || productImage;
+      // Always use the most current image (from localStorage or fallback to current state)
+      const currentImage = localStorage.getItem(`product-image-${product.id}`) || productImage;
+      
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: parseFloat(getPrice()),
+        quantity: quantity,
+        image: currentImage,
+        category: category || 'other',
+        size: getSizeLabel()
+      });
+      
+      toast.success(`${product.name} added to cart!`);
     } catch (error) {
-      console.error('Error accessing localStorage:', error);
-      currentImage = productImage;
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add item to cart. Please try again.");
     }
-    
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: parseFloat(getPrice()),
-      quantity: quantity,
-      image: currentImage,
-      category: category || 'other',
-      size: getSizeLabel()
-    });
-    
-    toast.success(`${product.name} added to cart!`);
   };
   
   const handleBuyNow = () => {
@@ -98,16 +106,23 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({
   
   const handleImageChange = (newImage: string) => {
     try {
+      // Update local state
       setProductImage(newImage);
-      // Dispatch custom event for other components in the same tab
-      window.dispatchEvent(new CustomEvent('productImageUpdated', { detail: { productId: product.id }}));
       
-      toast.success("Product image updated everywhere!", {
+      // Save to localStorage for persistence
+      localStorage.setItem(`product-image-${product.id}`, newImage);
+      
+      // Dispatch custom event for components in the same tab
+      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+        detail: { productId: product.id }
+      }));
+      
+      toast.success("Image updated everywhere!", {
         description: "The image will appear in all places across the website."
       });
     } catch (error) {
       console.error('Error updating product image:', error);
-      toast.error("Failed to update product image.");
+      toast.error("Failed to update image. Please try again.");
     }
   };
   

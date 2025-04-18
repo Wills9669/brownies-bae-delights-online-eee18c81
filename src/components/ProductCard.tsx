@@ -31,43 +31,45 @@ const ProductCard = ({
   const [currentImage, setCurrentImage] = useState(image);
   const [imageUpdated, setImageUpdated] = useState(false);
 
-  // Load saved image from localStorage on component mount
+  // Load and sync image whenever needed
   useEffect(() => {
-    const updateCurrentImage = () => {
+    const updateImageState = () => {
       try {
         const savedImage = localStorage.getItem(`product-image-${id}`);
         if (savedImage) {
           setCurrentImage(savedImage);
           setImageUpdated(true);
-          setImageError(false); // Reset error state if we have a valid image
+          setImageError(false);
         } else {
           setCurrentImage(image);
           setImageUpdated(false);
         }
       } catch (error) {
         console.error('Error accessing localStorage:', error);
+        setCurrentImage(image);
       }
     };
     
-    updateCurrentImage();
+    updateImageState();
     
-    // Listen for storage events (from other tabs)
-    window.addEventListener('storage', updateCurrentImage);
-    
-    // Listen for custom events (from same tab)
-    window.addEventListener('productImageUpdated', (e: any) => {
-      if (e.detail && e.detail.productId === id) {
-        updateCurrentImage();
+    // Handle events for updating images
+    const handleStorageEvent = () => updateImageState();
+    const handleCustomEvent = (e: any) => {
+      if (e.detail?.productId === id) {
+        updateImageState();
       }
-    });
+    };
+    
+    window.addEventListener('storage', handleStorageEvent);
+    window.addEventListener('productImageUpdated', handleCustomEvent);
     
     return () => {
-      window.removeEventListener('storage', updateCurrentImage);
-      window.removeEventListener('productImageUpdated', updateCurrentImage);
+      window.removeEventListener('storage', handleStorageEvent);
+      window.removeEventListener('productImageUpdated', handleCustomEvent);
     };
   }, [id, image]);
   
-  // Ensure category is one of the valid values for routing purposes
+  // Get the proper category for routing
   const getCategoryForRouting = (category: string) => {
     switch (category) {
       case 'brownies':
@@ -88,25 +90,24 @@ const ProductCard = ({
   const safeCategory = getCategoryForRouting(category);
   
   const handleAddToCart = () => {
-    // Always use the latest image from localStorage
-    let latestImage;
     try {
-      latestImage = localStorage.getItem(`product-image-${id}`) || currentImage;
+      // Always get the latest image from localStorage
+      const latestImage = localStorage.getItem(`product-image-${id}`) || currentImage;
+      
+      addToCart({
+        id,
+        name,
+        price: parseFloat(price),
+        quantity: 1,
+        image: latestImage,
+        category: safeCategory
+      });
+      
+      toast.success(`${name} added to cart!`);
     } catch (error) {
-      console.error('Error accessing localStorage:', error);
-      latestImage = currentImage;
+      console.error('Error adding to cart:', error);
+      toast.error("Failed to add item to cart.");
     }
-    
-    addToCart({
-      id,
-      name,
-      price: parseFloat(price),
-      quantity: 1,
-      image: latestImage,
-      category: safeCategory
-    });
-    
-    toast.success(`${name} added to cart!`);
   };
   
   const handleImageError = () => {
@@ -116,25 +117,23 @@ const ProductCard = ({
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
       try {
-        // Save to localStorage for persistence across page reloads and sharing with other components
+        // Save to localStorage
         localStorage.setItem(`product-image-${id}`, newImageUrl);
+        
+        // Update local state
         setCurrentImage(newImageUrl);
         setImageError(false);
         setImageUpdated(true);
         
-        // Dispatch storage event to update other open tabs/windows
+        // Trigger events to update other components
         window.dispatchEvent(new Event('storage'));
-        
-        // Dispatch custom event for components in the same tab
         window.dispatchEvent(new CustomEvent('productImageUpdated', { 
           detail: { productId: id }
         }));
         
-        toast.success("Image updated everywhere!", {
-          description: "The image will appear in all places across the website."
-        });
+        toast.success("Image updated everywhere!");
       } catch (error) {
-        console.error('Error saving to localStorage:', error);
+        console.error('Error saving image:', error);
         toast.error("Failed to save image. Try using a smaller image.");
       }
     }
@@ -147,10 +146,8 @@ const ProductCard = ({
       setCurrentImage(image);
       setImageUpdated(false);
       
-      // Dispatch storage event to update other components
+      // Trigger events to update other components
       window.dispatchEvent(new Event('storage'));
-      
-      // Dispatch custom event for same tab components
       window.dispatchEvent(new CustomEvent('productImageUpdated', { 
         detail: { productId: id }
       }));
@@ -158,6 +155,7 @@ const ProductCard = ({
       toast.success("Original image restored!");
     } catch (error) {
       console.error('Error clearing localStorage:', error);
+      toast.error("Failed to restore original image.");
     }
   };
 
