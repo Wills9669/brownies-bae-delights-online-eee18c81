@@ -2,12 +2,14 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
+import { safelyStoreImage } from '@/utils/imageUtils';
 
 interface ProductImageEditorProps {
   isOpen: boolean;
   onClose: () => void;
   onImageUpdate: (newImageUrl: string) => void;
   productName: string;
+  productId: string;
   currentImage: string;
 }
 
@@ -16,12 +18,26 @@ const ProductImageEditor = ({
   onClose,
   onImageUpdate,
   productName,
+  productId,
   currentImage,
 }: ProductImageEditorProps) => {
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
-      onImageUpdate(newImageUrl);
-      toast.success("Image updated successfully everywhere!");
+      // Try to safely store in localStorage
+      const stored = safelyStoreImage(`product-image-${productId}`, newImageUrl);
+      
+      if (stored) {
+        onImageUpdate(newImageUrl);
+        toast.success("Image updated successfully everywhere!");
+        
+        // Broadcast the change to all components
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+          detail: { productId }
+        }));
+      } else {
+        toast.error("Failed to save image. The image may be too large.");
+      }
     }
     onClose();
   };

@@ -1,5 +1,5 @@
 
-const optimizeImage = (file: File, maxWidth = 600, maxHeight = 600, quality = 0.6): Promise<string> => {
+const optimizeImage = (file: File, maxWidth = 400, maxHeight = 400, quality = 0.5): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -45,12 +45,36 @@ const optimizeImage = (file: File, maxWidth = 600, maxHeight = 600, quality = 0.
   });
 };
 
+// Add a function to safely store image in localStorage
+const safelyStoreImage = (key: string, imageData: string): boolean => {
+  try {
+    // First try to free up some space by removing old temp data
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const storageKey = localStorage.key(i);
+        if (storageKey?.startsWith('temp-')) {
+          localStorage.removeItem(storageKey);
+        }
+      }
+    } catch (e) {
+      console.log('Error cleaning up temp storage', e);
+    }
+    
+    // Try to store the image
+    localStorage.setItem(key, imageData);
+    return true;
+  } catch (error) {
+    console.error('Storage error:', error);
+    return false;
+  }
+};
+
 export const validateImage = (file: File) => {
-  const maxSize = 5 * 1024 * 1024; // 5MB
+  const maxSize = 3 * 1024 * 1024; // 3MB
   const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   
   if (file.size > maxSize) {
-    throw new Error('Image size must be less than 5MB');
+    throw new Error('Image size must be less than 3MB');
   }
   
   if (!validTypes.includes(file.type)) {
@@ -58,4 +82,4 @@ export const validateImage = (file: File) => {
   }
 };
 
-export { optimizeImage };
+export { optimizeImage, safelyStoreImage };

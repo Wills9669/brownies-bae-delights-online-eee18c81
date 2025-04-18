@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ImageOff, Edit, CheckCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
+import { safelyStoreImage } from '@/utils/imageUtils';
 
 interface ProductImageProps {
   id: string;
@@ -62,17 +62,22 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
   const handleImageUploaded = (newImageUrl: string) => {
     if (newImageUrl) {
       try {
-        localStorage.setItem(`product-image-${id}`, newImageUrl);
-        setCurrentImage(newImageUrl);
-        setImageError(false);
-        setImageUpdated(true);
+        const stored = safelyStoreImage(`product-image-${id}`, newImageUrl);
         
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-          detail: { productId: id }
-        }));
-        
-        toast.success("Image updated everywhere!");
+        if (stored) {
+          setCurrentImage(newImageUrl);
+          setImageError(false);
+          setImageUpdated(true);
+          
+          window.dispatchEvent(new Event('storage'));
+          window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+            detail: { productId: id }
+          }));
+          
+          toast.success("Image updated everywhere!");
+        } else {
+          toast.error("Failed to save image. Try using a smaller image.");
+        }
       } catch (error) {
         console.error('Error saving image:', error);
         toast.error("Failed to save image. Try using a smaller image.");

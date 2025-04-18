@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { ImageOff, Edit, CheckCircle } from 'lucide-react';
 import ProductImageEditor from './ProductImageEditor';
 import { toast } from 'sonner';
+import { safelyStoreImage } from '@/utils/imageUtils';
 
 interface ProductImageGalleryProps {
   mainImage: string;
@@ -70,19 +70,23 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
 
   const handleImageUpdate = (newImageUrl: string) => {
     try {
-      localStorage.setItem(`product-image-${productId}`, newImageUrl);
-      setActiveImage(newImageUrl);
-      setImageError(false);
-      setImageUpdated(true);
-      
-      if (onImageChange) {
-        onImageChange(newImageUrl);
+      const stored = safelyStoreImage(`product-image-${productId}`, newImageUrl);
+      if (stored) {
+        setActiveImage(newImageUrl);
+        setImageError(false);
+        setImageUpdated(true);
+        
+        if (onImageChange) {
+          onImageChange(newImageUrl);
+        }
+        
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+          detail: { productId: productId }
+        }));
+      } else {
+        toast.error("Failed to save image. Please try using a smaller image.");
       }
-      
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-        detail: { productId: productId }
-      }));
     } catch (error) {
       console.error('Error saving image:', error);
       toast.error("Failed to save image. Please try using a smaller image.");
@@ -201,6 +205,7 @@ const ProductImageGallery: React.FC<ProductImageGalleryProps> = ({
         onClose={() => setIsEditDialogOpen(false)}
         onImageUpdate={handleImageUpdate}
         productName={productName}
+        productId={productId}
         currentImage={activeImage}
       />
     </div>
