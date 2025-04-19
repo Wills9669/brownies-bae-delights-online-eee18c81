@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ImageOff, Edit, CheckCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
-import { safelyStoreImage } from '@/utils/imageUtils';
+import { safelyStoreImage, getStoredImage, broadcastImageChange } from '@/utils/imageUtils';
 
 interface ProductImageProps {
   id: string;
@@ -22,15 +23,10 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
   useEffect(() => {
     const updateImageState = () => {
       try {
-        const savedImage = localStorage.getItem(`product-image-${id}`);
-        if (savedImage) {
-          setCurrentImage(savedImage);
-          setImageUpdated(true);
-          setImageError(false);
-        } else {
-          setCurrentImage(image);
-          setImageUpdated(false);
-        }
+        const storedImage = getStoredImage(id, image);
+        setCurrentImage(storedImage);
+        setImageUpdated(storedImage !== image);
+        setImageError(false);
       } catch (error) {
         console.error('Error accessing localStorage:', error);
         setCurrentImage(image);
@@ -69,10 +65,7 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
           setImageError(false);
           setImageUpdated(true);
           
-          window.dispatchEvent(new Event('storage'));
-          window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-            detail: { productId: id }
-          }));
+          broadcastImageChange(id);
           
           toast.success("Image updated everywhere!");
         } else {
@@ -92,10 +85,7 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
       setCurrentImage(image);
       setImageUpdated(false);
       
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-        detail: { productId: id }
-      }));
+      broadcastImageChange(id);
       
       toast.success("Original image restored!");
     } catch (error) {

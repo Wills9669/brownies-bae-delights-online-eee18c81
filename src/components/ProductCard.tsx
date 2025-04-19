@@ -1,10 +1,12 @@
 
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
 import ProductImage from '@/components/product/ProductImage';
+import { getStoredImage } from '@/utils/imageUtils';
 
 interface ProductCardProps {
   id: string;
@@ -24,6 +26,32 @@ const ProductCard = ({
   description
 }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const [currentImage, setCurrentImage] = useState(image);
+  
+  // Sync image state with localStorage
+  useEffect(() => {
+    const updateImage = () => {
+      const storedImage = getStoredImage(id, image);
+      setCurrentImage(storedImage);
+    };
+    
+    updateImage();
+    
+    const handleStorageEvent = () => updateImage();
+    const handleCustomEvent = (e: any) => {
+      if (e.detail?.productId === id) {
+        updateImage();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageEvent);
+    window.addEventListener('productImageUpdated', handleCustomEvent);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageEvent);
+      window.removeEventListener('productImageUpdated', handleCustomEvent);
+    };
+  }, [id, image]);
   
   // Get the proper category for routing
   const getCategoryForRouting = (category: string) => {
@@ -47,14 +75,13 @@ const ProductCard = ({
   
   const handleAddToCart = () => {
     try {
-      const latestImage = localStorage.getItem(`product-image-${id}`) || image;
-      
+      // Use updated image state instead of directly accessing localStorage
       addToCart({
         id,
         name,
         price: parseFloat(price),
         quantity: 1,
-        image: latestImage,
+        image: currentImage,
         category: safeCategory
       });
       

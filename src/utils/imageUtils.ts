@@ -45,7 +45,7 @@ const optimizeImage = (file: File, maxWidth = 400, maxHeight = 400, quality = 0.
   });
 };
 
-// Add a function to safely store image in localStorage
+// Improved safelyStoreImage function with better error handling and cleanup
 const safelyStoreImage = (key: string, imageData: string): boolean => {
   try {
     // First try to free up some space by removing old temp data
@@ -60,8 +60,16 @@ const safelyStoreImage = (key: string, imageData: string): boolean => {
       console.log('Error cleaning up temp storage', e);
     }
     
-    // Try to store the image
+    // Try storing the image
     localStorage.setItem(key, imageData);
+    
+    // Verify the image was stored correctly
+    const storedData = localStorage.getItem(key);
+    if (!storedData || storedData !== imageData) {
+      console.error('Storage verification failed');
+      return false;
+    }
+    
     return true;
   } catch (error) {
     console.error('Storage error:', error);
@@ -79,6 +87,35 @@ export const validateImage = (file: File) => {
   
   if (!validTypes.includes(file.type)) {
     throw new Error('Please upload a valid image (JPEG, PNG, GIF, WEBP)');
+  }
+};
+
+// Add a function to broadcast image changes to all components
+export const broadcastImageChange = (productId: string) => {
+  try {
+    // Trigger localStorage event for cross-tab updates
+    window.dispatchEvent(new Event('storage'));
+    
+    // Trigger custom event for in-page updates
+    window.dispatchEvent(new CustomEvent('productImageUpdated', { 
+      detail: { productId }
+    }));
+    
+    return true;
+  } catch (error) {
+    console.error('Error broadcasting image change:', error);
+    return false;
+  }
+};
+
+// Improved function to retrieve stored images with fallbacks
+export const getStoredImage = (productId: string, fallbackImage: string): string => {
+  try {
+    const savedImage = localStorage.getItem(`product-image-${productId}`);
+    return savedImage || fallbackImage;
+  } catch (error) {
+    console.error('Error retrieving stored image:', error);
+    return fallbackImage;
   }
 };
 

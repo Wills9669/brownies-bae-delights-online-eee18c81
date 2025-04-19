@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ImageUploader from '@/components/ImageUploader';
 import { toast } from 'sonner';
-import { safelyStoreImage } from '@/utils/imageUtils';
+import { safelyStoreImage, broadcastImageChange } from '@/utils/imageUtils';
 
 interface ProductImageEditorProps {
   isOpen: boolean;
@@ -30,11 +30,8 @@ const ProductImageEditor = ({
         onImageUpdate(newImageUrl);
         toast.success("Image updated successfully everywhere!");
         
-        // Broadcast the change to all components
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-          detail: { productId }
-        }));
+        // Use the utility to broadcast the change
+        broadcastImageChange(productId);
       } else {
         toast.error("Failed to save image. The image may be too large.");
       }
