@@ -12,9 +12,10 @@ interface ProductImageProps {
   image: string;
   name: string;
   category: string;
+  onImageError?: () => void;
 }
 
-const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
+const ProductImage = ({ id, image, name, category, onImageError }: ProductImageProps) => {
   const [currentImage, setCurrentImage] = useState(image);
   const [imageError, setImageError] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -63,6 +64,10 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
   const handleImageError = () => {
     setImageError(true);
     console.error(`Failed to load image for product ${id}`);
+    
+    if (onImageError) {
+      onImageError();
+    }
   };
 
   const handleImageUploaded = (newImageUrl: string) => {
@@ -77,7 +82,9 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
           
           broadcastImageChange(id);
           
-          toast.success("Image updated everywhere!");
+          toast.success("Image updated everywhere!", {
+            description: "Your image has been successfully updated across all views"
+          });
         } else {
           toast.error("Failed to save image. Try using a smaller image.");
         }
