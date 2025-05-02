@@ -18,24 +18,47 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   const [error, setError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Add progress indicator
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     setError(null);
+    setUploadProgress(0);
     
     try {
       validateImage(file);
       setIsUploading(true);
+      
+      // Simulate progress for better UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 100);
+      
       const optimizedImageDataUrl = await optimizeImage(file);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      
       setPreviewImage(optimizedImageDataUrl);
       setHasChanges(true);
       toast.success("Image loaded and optimized successfully.");
+      
+      // Reset progress after a delay
+      setTimeout(() => setUploadProgress(0), 1000);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to process image';
       setError(message);
       toast.error(message);
+      setUploadProgress(0);
     } finally {
       setIsUploading(false);
     }
@@ -49,7 +72,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
   };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      // Reset capture attribute to allow file selection
+      fileInputRef.current.removeAttribute('capture');
+      fileInputRef.current.click();
+    }
   };
 
   const saveChanges = () => {
@@ -100,7 +127,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUploaded, currentI
       )}
       
       {isUploading && (
-        <p className="text-blue-500 text-xs">Processing image...</p>
+        <div className="w-full">
+          <p className="text-blue-500 text-xs mb-1">Processing image...</p>
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+        </div>
       )}
 
       {hasChanges && previewImage && (

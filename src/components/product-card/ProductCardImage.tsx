@@ -19,8 +19,10 @@ const ProductCardImage = ({ id, image, name, category }: ProductCardImageProps) 
       setCurrentImage(storedImage);
     };
     
+    // Initial image load
     updateImage();
     
+    // Set up event listeners for image changes
     const handleStorageEvent = () => updateImage();
     const handleCustomEvent = (e: any) => {
       if (e.detail?.productId === id) {
@@ -28,12 +30,19 @@ const ProductCardImage = ({ id, image, name, category }: ProductCardImageProps) 
       }
     };
     
+    // Listen for specific product event
+    const handleSpecificProductEvent = () => updateImage();
+    const specificEventName = `productImage-${id}-updated`;
+    
     window.addEventListener('storage', handleStorageEvent);
     window.addEventListener('productImageUpdated', handleCustomEvent);
+    window.addEventListener(specificEventName, handleSpecificProductEvent);
     
+    // Clean up event listeners
     return () => {
       window.removeEventListener('storage', handleStorageEvent);
       window.removeEventListener('productImageUpdated', handleCustomEvent);
+      window.removeEventListener(specificEventName, handleSpecificProductEvent);
     };
   }, [id, image]);
 

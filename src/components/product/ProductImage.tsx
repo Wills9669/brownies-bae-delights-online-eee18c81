@@ -33,8 +33,10 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
       }
     };
     
+    // Initial load
     updateImageState();
     
+    // Set up event listeners for updates
     const handleStorageEvent = () => updateImageState();
     const handleCustomEvent = (e: any) => {
       if (e.detail?.productId === id) {
@@ -42,17 +44,25 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
       }
     };
     
+    // Listen for specific product event
+    const specificEventName = `productImage-${id}-updated`;
+    const handleSpecificProductEvent = () => updateImageState();
+    
     window.addEventListener('storage', handleStorageEvent);
     window.addEventListener('productImageUpdated', handleCustomEvent);
+    window.addEventListener(specificEventName, handleSpecificProductEvent);
     
+    // Clean up event listeners
     return () => {
       window.removeEventListener('storage', handleStorageEvent);
       window.removeEventListener('productImageUpdated', handleCustomEvent);
+      window.removeEventListener(specificEventName, handleSpecificProductEvent);
     };
   }, [id, image]);
 
   const handleImageError = () => {
     setImageError(true);
+    console.error(`Failed to load image for product ${id}`);
   };
 
   const handleImageUploaded = (newImageUrl: string) => {
@@ -102,8 +112,9 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
             <img
               src={currentImage}
               alt={name}
-              className="w-full h-full hover:scale-105 transition-transform duration-500 object-contain"
+              className="w-full h-full transition-all duration-500 object-contain hover:scale-105"
               onError={handleImageError}
+              loading="lazy"
             />
           </Link>
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
@@ -114,6 +125,7 @@ const ProductImage = ({ id, image, name, category }: ProductImageProps) => {
                 setIsEditDialogOpen(true);
               }} 
               className="p-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100"
+              aria-label="Edit image"
             >
               <Edit className="text-gray-800" size={20} />
             </button>

@@ -1,4 +1,8 @@
 
+/**
+ * Utility functions for image optimization, storage and retrieval
+ */
+
 const optimizeImage = (file: File, maxWidth = 400, maxHeight = 400, quality = 0.5): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -45,7 +49,7 @@ const optimizeImage = (file: File, maxWidth = 400, maxHeight = 400, quality = 0.
   });
 };
 
-// Improved safelyStoreImage function with better error handling and cleanup
+// Enhanced safelyStoreImage function with more robust storage and validation
 const safelyStoreImage = (key: string, imageData: string): boolean => {
   try {
     // First try to free up some space by removing old temp data
@@ -90,15 +94,26 @@ export const validateImage = (file: File) => {
   }
 };
 
-// Add a function to broadcast image changes to all components
+// Improved function to broadcast image changes to all components
 export const broadcastImageChange = (productId: string) => {
   try {
+    // Create a specific event name for this product
+    const eventName = `productImage-${productId}-updated`;
+    
+    // Store timestamp to ensure changes are detected
+    localStorage.setItem(`product-image-${productId}-timestamp`, new Date().getTime().toString());
+    
     // Trigger localStorage event for cross-tab updates
     window.dispatchEvent(new Event('storage'));
     
     // Trigger custom event for in-page updates
     window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-      detail: { productId }
+      detail: { productId, timestamp: new Date().getTime() }
+    }));
+    
+    // Dispatch specific product event
+    window.dispatchEvent(new CustomEvent(eventName, {
+      detail: { timestamp: new Date().getTime() }
     }));
     
     return true;
@@ -108,14 +123,45 @@ export const broadcastImageChange = (productId: string) => {
   }
 };
 
-// Improved function to retrieve stored images with fallbacks
+// Enhanced function to retrieve stored images with improved error handling and caching
 export const getStoredImage = (productId: string, fallbackImage: string): string => {
   try {
+    // Try to get the image from localStorage with validation
     const savedImage = localStorage.getItem(`product-image-${productId}`);
-    return savedImage || fallbackImage;
+    
+    if (!savedImage) {
+      return fallbackImage;
+    }
+    
+    // Simple validation check to ensure it's likely an image data URL
+    if (savedImage.startsWith('data:image/')) {
+      return savedImage;
+    } else {
+      console.warn('Invalid image format in localStorage for:', productId);
+      return fallbackImage;
+    }
   } catch (error) {
     console.error('Error retrieving stored image:', error);
     return fallbackImage;
+  }
+};
+
+// Clear all product images from localStorage
+export const clearAllProductImages = () => {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('product-image-')) {
+        keysToRemove.push(key);
+      }
+    }
+    
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    return true;
+  } catch (error) {
+    console.error('Error clearing product images:', error);
+    return false;
   }
 };
 

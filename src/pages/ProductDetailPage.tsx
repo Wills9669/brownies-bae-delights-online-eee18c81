@@ -54,12 +54,18 @@ const ProductDetailPage = () => {
       }
     };
     
+    // Listen for specific product event
+    const specificEventName = `productImage-${id}-updated`;
+    const handleSpecificProductEvent = () => handleImageUpdate();
+    
     window.addEventListener('storage', handleImageUpdate);
     window.addEventListener('productImageUpdated', handleCustomEvent);
+    window.addEventListener(specificEventName, handleSpecificProductEvent);
     
     return () => {
       window.removeEventListener('storage', handleImageUpdate);
       window.removeEventListener('productImageUpdated', handleCustomEvent);
+      window.removeEventListener(specificEventName, handleSpecificProductEvent);
     };
   }, [id, product]);
   
