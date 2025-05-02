@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import ProductImage from '@/components/product/ProductImage';
-import { getStoredImage } from '@/utils/imageUtils';
+import { getStoredImage, broadcastImageChange } from '@/utils/imageUtils';
 import { toast } from 'sonner';
 
 interface ProductCardImageProps {
@@ -39,8 +39,8 @@ const ProductCardImage = ({ id, image, name, category }: ProductCardImageProps) 
     
     // Set up event listeners for image changes
     const handleStorageEvent = () => updateImage();
-    const handleCustomEvent = (e: any) => {
-      if (e.detail?.productId === id) {
+    const handleCustomEvent = (e: CustomEvent) => {
+      if ((e as any).detail?.productId === id) {
         updateImage();
       }
     };
@@ -50,13 +50,13 @@ const ProductCardImage = ({ id, image, name, category }: ProductCardImageProps) 
     const specificEventName = `productImage-${id}-updated`;
     
     window.addEventListener('storage', handleStorageEvent);
-    window.addEventListener('productImageUpdated', handleCustomEvent);
+    window.addEventListener('productImageUpdated', handleCustomEvent as EventListener);
     window.addEventListener(specificEventName, handleSpecificProductEvent);
     
     // Clean up event listeners
     return () => {
       window.removeEventListener('storage', handleStorageEvent);
-      window.removeEventListener('productImageUpdated', handleCustomEvent);
+      window.removeEventListener('productImageUpdated', handleCustomEvent as EventListener);
       window.removeEventListener(specificEventName, handleSpecificProductEvent);
     };
   }, [id, image, hasAttemptedFallback]);

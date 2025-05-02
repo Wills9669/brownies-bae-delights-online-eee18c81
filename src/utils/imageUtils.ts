@@ -103,10 +103,13 @@ export const broadcastImageChange = (productId: string) => {
     // Store timestamp to ensure changes are detected
     localStorage.setItem(`product-image-${productId}-timestamp`, new Date().getTime().toString());
     
-    // Trigger localStorage event for cross-tab updates
+    // Trigger all possible events to ensure synchronization across all components
+    
+    // General storage event for cross-tab sync
+    localStorage.setItem('last-image-update', new Date().getTime().toString());
     window.dispatchEvent(new Event('storage'));
     
-    // Trigger custom event for in-page updates
+    // Custom events for in-page updates
     window.dispatchEvent(new CustomEvent('productImageUpdated', { 
       detail: { productId, timestamp: new Date().getTime() }
     }));

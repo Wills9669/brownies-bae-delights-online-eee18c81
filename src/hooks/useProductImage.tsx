@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { safelyStoreImage } from '@/utils/imageUtils';
+import { safelyStoreImage, broadcastImageChange } from '@/utils/imageUtils';
 
 export const useProductImage = (productId: string, mainImage: string, currentImage?: string) => {
   const [activeImage, setActiveImage] = useState(currentImage || mainImage);
@@ -16,9 +16,9 @@ export const useProductImage = (productId: string, mainImage: string, currentIma
           setActiveImage(savedImage);
           setImageError(false);
           setImageUpdated(true);
-        } else if (currentImage) {
+        } else if (currentImage && currentImage !== mainImage) {
           setActiveImage(currentImage);
-          setImageUpdated(false);
+          setImageUpdated(currentImage !== mainImage);
         } else {
           setActiveImage(mainImage);
           setImageUpdated(false);
@@ -32,20 +32,33 @@ export const useProductImage = (productId: string, mainImage: string, currentIma
     syncImage();
     
     const handleStorageEvent = () => syncImage();
-    const handleCustomEvent = (e: any) => {
-      if (e.detail?.productId === productId) {
+    const handleCustomEvent = (e: CustomEvent) => {
+      if ((e as any).detail?.productId === productId) {
         syncImage();
       }
     };
     
+    // Listen for specific product event
+    const specificEventName = `productImage-${productId}-updated`;
+    const handleSpecificProductEvent = () => syncImage();
+    
     window.addEventListener('storage', handleStorageEvent);
-    window.addEventListener('productImageUpdated', handleCustomEvent);
+    window.addEventListener('productImageUpdated', handleCustomEvent as EventListener);
+    window.addEventListener(specificEventName, handleSpecificProductEvent);
     
     return () => {
       window.removeEventListener('storage', handleStorageEvent);
-      window.removeEventListener('productImageUpdated', handleCustomEvent);
+      window.removeEventListener('productImageUpdated', handleCustomEvent as EventListener);
+      window.removeEventListener(specificEventName, handleSpecificProductEvent);
     };
   }, [productId, mainImage, currentImage]);
+
+  // Update if props change
+  useEffect(() => {
+    if (currentImage && currentImage !== activeImage && !imageUpdated) {
+      setActiveImage(currentImage);
+    }
+  }, [currentImage]);
 
   const handleImageError = () => {
     setImageError(true);
@@ -58,16 +71,30 @@ export const useProductImage = (productId: string, mainImage: string, currentIma
       setActiveImage(mainImage);
       setImageUpdated(false);
       
-      window.dispatchEvent(new Event('storage'));
-      window.dispatchEvent(new CustomEvent('productImageUpdated', { 
-        detail: { productId }
-      }));
+      broadcastImageChange(productId);
       
       toast.success("Original image restored!");
       return true;
     } catch (error) {
       console.error('Error clearing image:', error);
       toast.error("Failed to restore original image.");
+      return false;
+    }
+  };
+
+  const updateImage = (newImage: string) => {
+    try {
+      const stored = safelyStoreImage(`product-image-${productId}`, newImage);
+      if (stored) {
+        setActiveImage(newImage);
+        setImageError(false);
+        setImageUpdated(true);
+        broadcastImageChange(productId);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error updating image:', error);
       return false;
     }
   };
@@ -80,6 +107,7 @@ export const useProductImage = (productId: string, mainImage: string, currentIma
     setImageError,
     setImageUpdated,
     handleImageError,
-    clearImage
+    clearImage,
+    updateImage
   };
 };

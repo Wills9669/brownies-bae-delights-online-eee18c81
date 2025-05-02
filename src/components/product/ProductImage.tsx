@@ -39,8 +39,8 @@ const ProductImage = ({ id, image, name, category, onImageError }: ProductImageP
     
     // Set up event listeners for updates
     const handleStorageEvent = () => updateImageState();
-    const handleCustomEvent = (e: any) => {
-      if (e.detail?.productId === id) {
+    const handleCustomEvent = (e: CustomEvent) => {
+      if ((e as any).detail?.productId === id) {
         updateImageState();
       }
     };
@@ -50,16 +50,23 @@ const ProductImage = ({ id, image, name, category, onImageError }: ProductImageP
     const handleSpecificProductEvent = () => updateImageState();
     
     window.addEventListener('storage', handleStorageEvent);
-    window.addEventListener('productImageUpdated', handleCustomEvent);
+    window.addEventListener('productImageUpdated', handleCustomEvent as EventListener);
     window.addEventListener(specificEventName, handleSpecificProductEvent);
     
     // Clean up event listeners
     return () => {
       window.removeEventListener('storage', handleStorageEvent);
-      window.removeEventListener('productImageUpdated', handleCustomEvent);
+      window.removeEventListener('productImageUpdated', handleCustomEvent as EventListener);
       window.removeEventListener(specificEventName, handleSpecificProductEvent);
     };
   }, [id, image]);
+
+  // Update currentImage if the image prop changes
+  useEffect(() => {
+    if (image !== currentImage && !imageUpdated) {
+      setCurrentImage(image);
+    }
+  }, [image]);
 
   const handleImageError = () => {
     setImageError(true);
