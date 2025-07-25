@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom';
 import { MessageCircle } from 'lucide-react';
+import { getStoredImage } from '@/utils/imageUtils';
 
 type Product = {
   id: string;
@@ -45,9 +46,12 @@ const RecommendationResults = ({ recommendations, showRecommendations }: Recomme
           >
             <div className="h-40 overflow-hidden">
               <img 
-                src={product.image} 
+                src={getStoredImage(product.id, product.image)} 
                 alt={product.name} 
                 className="w-full h-full object-cover transition-transform hover:scale-110"
+                onError={(e) => {
+                  e.currentTarget.src = product.image;
+                }}
               />
             </div>
             <div className="p-4">
