@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
+import { getStoredImage } from '@/utils/imageUtils';
 
 interface AddToCartButtonProps {
   id: string;
@@ -17,12 +18,13 @@ const AddToCartButton = ({ id, name, price, image, category }: AddToCartButtonPr
 
   const handleAddToCart = () => {
     try {
+      const storedImage = getStoredImage(id, image);
       addToCart({
         id,
         name,
         price: parseFloat(price),
         quantity: 1,
-        image,
+        image: storedImage,
         category
       });
       

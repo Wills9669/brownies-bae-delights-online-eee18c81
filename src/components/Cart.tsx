@@ -15,6 +15,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { toast } from 'sonner';
+import { getStoredImage } from '@/utils/imageUtils';
 
 const Cart = () => {
   const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
@@ -92,7 +93,14 @@ const Cart = () => {
                 cart.map((item) => (
                   <div key={`${item.id}-${item.size}`} className="flex items-start gap-3 border-b pb-3">
                     <div className="h-16 w-16 overflow-hidden rounded-md">
-                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                      <img 
+                        src={getStoredImage(item.id, item.image)} 
+                        alt={item.name} 
+                        className="h-full w-full object-cover" 
+                        onError={(e) => {
+                          e.currentTarget.src = item.image;
+                        }}
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between">

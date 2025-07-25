@@ -19,16 +19,19 @@ const ProductCardImage = ({ id, image, name, category }: ProductCardImageProps) 
     const updateImage = () => {
       try {
         const storedImage = getStoredImage(id, image);
+        console.log(`ProductCardImage: Updating image for ${id}`, { storedImage: storedImage.substring(0, 50) + '...' });
         setCurrentImage(storedImage);
         setHasAttemptedFallback(false); // Reset fallback state when updating image
       } catch (error) {
-        console.error('Error updating image:', error);
+        console.error('Error updating image for product', id, error);
         if (!hasAttemptedFallback) {
           // If this is our first error, try to use the original image as fallback
+          console.log(`First error for ${id}, using original image`);
           setCurrentImage(image);
           setHasAttemptedFallback(true);
         } else {
           // If we've already tried the fallback, use a placeholder
+          console.log(`Second error for ${id}, using placeholder`);
           setCurrentImage('/placeholder.svg');
         }
       }

@@ -133,14 +133,18 @@ export const getStoredImage = (productId: string, fallbackImage: string): string
     const savedImage = localStorage.getItem(`product-image-${productId}`);
     
     if (!savedImage) {
+      console.log(`No stored image found for product ${productId}, using fallback`);
       return fallbackImage;
     }
     
     // Simple validation check to ensure it's likely an image data URL
     if (savedImage.startsWith('data:image/')) {
+      console.log(`Using stored image for product ${productId}`);
       return savedImage;
     } else {
       console.warn('Invalid image format in localStorage for:', productId);
+      // Clean up invalid data
+      localStorage.removeItem(`product-image-${productId}`);
       return fallbackImage;
     }
   } catch (error) {
