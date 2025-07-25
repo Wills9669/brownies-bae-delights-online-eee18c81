@@ -19,7 +19,7 @@ export const cakeJarsList: CakeJar[] = [
     id: 'chocolate-jar',
     name: 'Chocolate Cake Jar',
     price: '65',
-    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    image: '/lovable-uploads/4b333cdc-9d82-4ca8-81be-1f01d9d415c1.png',
     description: 'Rich chocolate cake layered with chocolate frosting in a convenient portable jar.'
   },
   {
@@ -44,7 +44,7 @@ export const cupcakesList: Cupcake[] = [
     id: 'vanilla-cupcake',
     name: 'Vanilla Cupcake',
     price: '30',
-    image: '/lovable-uploads/f4dce3a9-9aa4-442f-baa2-ccdc8c81896f.png',
+    image: '/lovable-uploads/88e851af-dbdb-442c-8b91-1c71242d260d.png',
     description: 'Light and fluffy vanilla cupcake topped with creamy vanilla frosting and delicate sprinkles.'
   },
   {
@@ -65,14 +65,14 @@ export const cupcakesList: Cupcake[] = [
     id: 'brownie-cupcake',
     name: 'Brownie Cupcake',
     price: '45',
-    image: '/lovable-uploads/b2598399-7631-4419-b6e9-47cf9b84b0ef.png',
+    image: '/lovable-uploads/88e851af-dbdb-442c-8b91-1c71242d260d.png',
     description: 'Decadent chocolate brownie cupcake topped with ice cream and chocolate drizzle.'
   },
   {
     id: 'choco-lava-cupcake',
     name: 'Choco Chip Cupcake',
     price: '40',
-    image: '/lovable-uploads/3240bb48-8c22-4d7a-8e09-62903ba01b6a.png',
+    image: '/lovable-uploads/4b333cdc-9d82-4ca8-81be-1f01d9d415c1.png',
     description: 'Chocolate cupcake topped with chocolate frosting and chocolate chips.'
   }
 ];

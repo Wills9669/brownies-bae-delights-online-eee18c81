@@ -38,7 +38,7 @@ export const cakesList: Cake[] = [
     name: 'Vanilla Cake',
     halfKgPrice: '400',
     oneKgPrice: '800',
-    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    image: '/lovable-uploads/80b2e418-4b8f-4bc1-a409-fa99c49e591e.png',
     description: 'Classic vanilla sponge cake with light and fluffy texture and sweet vanilla flavor.'
   },
   {
@@ -62,7 +62,7 @@ export const cakesList: Cake[] = [
     name: 'Chocolate Cake',
     halfKgPrice: '550',
     oneKgPrice: '850',
-    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    image: '/lovable-uploads/f10d9d01-5a6c-42a6-a63d-b36c0ae8ff85.png',
     description: 'Rich and moist chocolate cake made with premium cocoa for intense chocolate flavor.'
   },
   {
@@ -70,7 +70,7 @@ export const cakesList: Cake[] = [
     name: 'Chocolate Ganache Cake',
     halfKgPrice: '599',
     oneKgPrice: '1120',
-    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    image: '/lovable-uploads/4b333cdc-9d82-4ca8-81be-1f01d9d415c1.png',
     description: 'Decadent chocolate cake covered in rich chocolate ganache for the ultimate chocolate experience.'
   },
   {
@@ -94,7 +94,7 @@ export const cakesList: Cake[] = [
     name: 'Fruit Cake',
     halfKgPrice: '650',
     oneKgPrice: '1100',
-    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    image: '/lovable-uploads/6f4f7dfd-2459-44c6-8044-806be30dac1f.png',
     description: 'Fresh sponge cake loaded with seasonal fruits and topped with a light glaze.'
   },
   {
@@ -118,7 +118,7 @@ export const cakesList: Cake[] = [
     name: 'Black Current Cake',
     halfKgPrice: '510',
     oneKgPrice: '985',
-    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    image: '/lovable-uploads/6dd8f1e0-e05b-4792-844b-fd370942bdbf.jpg',
     description: 'Tangy and sweet cake featuring black currant flavoring and real black currant pieces.'
   },
   {
@@ -142,7 +142,7 @@ export const cakesList: Cake[] = [
     name: 'Double Chocolate Brownie Cake',
     halfKgPrice: '550',
     oneKgPrice: '998',
-    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    image: '/lovable-uploads/3df4beea-c1cf-4704-8484-a6feb0953155.png',
     description: 'Rich double chocolate cake with brownie-like texture and fudgy chocolate frosting.'
   },
   {
@@ -158,7 +158,7 @@ export const cakesList: Cake[] = [
     name: 'Banana Cake',
     halfKgPrice: '200',
     oneKgPrice: '400',
-    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    image: '/lovable-uploads/c4975858-5a54-48d0-b866-548b360525d0.jpg',
     description: 'Moist banana-flavored cake made with ripe bananas for natural sweetness and flavor.'
   },
   {
@@ -166,7 +166,7 @@ export const cakesList: Cake[] = [
     name: 'Plum Cake',
     halfKgPrice: '350',
     oneKgPrice: '650',
-    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    image: '/lovable-uploads/757f397b-a3ba-42ef-b743-3059f8842595.jpg',
     description: 'Traditional cake made with dried fruits, nuts and spices, perfect for holiday celebrations.'
   },
   {

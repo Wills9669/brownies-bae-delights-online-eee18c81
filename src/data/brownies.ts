@@ -25,7 +25,7 @@ export const browniesList: Brownie[] = [
     perPiecePrice: '50',
     halfKgPrice: '449',
     oneKgPrice: '888',
-    image: '/lovable-uploads/b37abae5-41cb-4244-8d14-cfbfa686d46c.png',
+    image: '/lovable-uploads/3df4beea-c1cf-4704-8484-a6feb0953155.png',
     description: 'Our classic dark chocolate brownie with a perfect balance of fudginess and rich cocoa flavor.'
   },
   {
@@ -34,7 +34,7 @@ export const browniesList: Brownie[] = [
     perPiecePrice: '55',
     halfKgPrice: '500',
     oneKgPrice: '999',
-    image: '/lovable-uploads/ddde3a1c-88d4-4613-835b-2b5c3365f247.png',
+    image: '/lovable-uploads/4b333cdc-9d82-4ca8-81be-1f01d9d415c1.png',
     description: 'Twice the chocolate goodness with chocolate chips folded into our rich brownie batter.'
   },
   {
@@ -106,7 +106,7 @@ export const browniesList: Brownie[] = [
     perPiecePrice: '55',
     halfKgPrice: '449',
     oneKgPrice: '888',
-    image: '/lovable-uploads/fe7c4507-9a35-4132-bc9a-122f9904d4fc.png',
+    image: '/lovable-uploads/6396d276-59ba-4efc-b8be-0ef08b153f5e.jpg',
     description: 'Made with whole wheat flour for a healthier twist without compromising on taste.'
   },
   {
